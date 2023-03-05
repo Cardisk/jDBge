@@ -1,4 +1,7 @@
 #include <iostream>
+#include <string>
+
+#include "Lexer.h"
 
 void usage(const std::string& err) {
     std::cerr << "jDBge: " << err << std::endl << std::endl;
