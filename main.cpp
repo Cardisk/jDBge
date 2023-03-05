@@ -21,7 +21,25 @@ std::string shift(int *argc, char ***argv) {
 }
 
 void shell() {
-    // TODO: interactive shell, user input, query parsing, query execution
+    // TODO: query parsing, query execution
+    Lexer lexer = Lexer("");
+    std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
+    while (true) {
+        std::string cmd;
+        std::cout << ">> ";
+        std::getline(std::cin, cmd);
+
+        std::transform(cmd.begin(), cmd.end(), cmd.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        if (cmd == "exit" || cmd == "quit") break;
+
+        lexer.set_content(cmd);
+
+        std::string token;
+        while (!(token = lexer.next_token()).empty()) {
+            std::cout << token << std::endl;
+        }
+    }
 }
 
 void clean() {
@@ -34,6 +52,8 @@ int main(int argc, char **argv) {
         ::exit(EXIT_FAILURE);
     }
 
+    shift(&argc, &argv);
+
     while (argc > 0) {
         std::string cmd = shift(&argc, &argv);
         if (cmd == "help") {
@@ -44,6 +64,7 @@ int main(int argc, char **argv) {
             clean();                    // TODO: this will remove everything created by this program
         } else {
             usage("unrecognized token '" + cmd + "'");
+            ::exit(EXIT_FAILURE);
         }
     }
 

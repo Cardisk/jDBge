@@ -6,13 +6,13 @@
 #define JDBGE_LEXER_H
 
 #include <string>
-#include <utility>
 
 class Lexer {
 public:
     explicit Lexer(std::string content) : content(std::move(content)) {};
 
     std::string next_token();
+    void set_content(std::string new_content);
 
 private:
     void trim_left() {
