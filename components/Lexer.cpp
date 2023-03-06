@@ -5,6 +5,7 @@
 #include "Lexer.h"
 
 #include <utility>
+#include "Keywords.h"
 
 Token Lexer::next_token() {
     this->trim_left();
@@ -16,7 +17,15 @@ Token Lexer::next_token() {
     std::string token_text = this->content.substr(0, next_token_pos);
     this->content = this->content.erase(0, next_token_pos);
 
-    return {TokenType::Symbol, token_text};
+    TokenType type = TokenType::Symbol;
+    for (const std::string& word : keywords) {
+        if (token_text == word) {
+            type = TokenType::Keyword;
+            break;
+        }
+    }
+
+    return {type, token_text};
 }
 
 void Lexer::set_content(std::string new_content) {
