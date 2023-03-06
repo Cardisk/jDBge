@@ -1,13 +1,15 @@
 #include <iostream>
 #include <string>
+#include <cassert>
+#include <algorithm>
 
 #include "components/Lexer.h"
 
 #define vector_print(_VECTOR) \
     do { \
         std::cout << "[ "; \
-        for (size_t i = 0; i < _VECTOR.size(); i++) \
-            std::cout << _VECTOR[i] << (i < _VECTOR.size() - 1 ? ", " : ""); \
+        for (size_t i = 0; i < (_VECTOR).size(); i++) \
+            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
         std::cout << " ]" << std::endl; \
     } while(0)
 
