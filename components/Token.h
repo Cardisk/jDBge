@@ -36,6 +36,10 @@ public:
         return os;
     };
 
+    friend bool operator==(const Token &self, const Token &other) {
+        return (self.token_type == other.token_type && self.token_text == other.token_text);
+    }
+
     [[nodiscard]] TokenType get_type() const {
         return token_type;
     }
