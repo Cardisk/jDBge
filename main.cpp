@@ -43,13 +43,14 @@ void shell() {
 
         lexer.set_content(cmd);
 
-        std::vector<std::string> tokens = lexer.collect();
+        std::vector<Token> tokens = lexer.collect();
         vector_print(tokens);
     }
 }
 
 void clean() {
     // TODO: removing files and folders
+    assert(0 && "TODO: not implemented yet");
 }
 
 int main(int argc, char **argv) {

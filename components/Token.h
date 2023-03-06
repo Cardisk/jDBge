@@ -5,20 +5,48 @@
 #ifndef JDBGE_TOKEN_H
 #define JDBGE_TOKEN_H
 
+#include <iostream>
 #include <string>
+#include <utility>
 
 typedef enum TokenType {
+    Invalid = 0,
+
     Symbol,
     Keyword,
+    Number,
+
     BinaryOp,
     UnaryOp,
-    Number,
+
     TYPE_COUNT,
 } TokenType;
 
-typedef struct Token {
+class Token {
+public:
+    Token(TokenType tokenType, std::string tokenText) : token_type(tokenType), token_text(std::move(tokenText)) {}
+
+    explicit Token(std::string tokenText) : token_type(TokenType::Invalid), token_text(std::move(tokenText)) {}
+
+    friend std::ostream &operator<<(std::ostream &os, const Token &obj) {
+        std::cout << "{ ";
+        std::cout << "token_type: " << obj.token_type;
+        std::cout << ", token_text: " << obj.token_text;
+        std::cout << " }";
+        return os;
+    };
+
+    [[nodiscard]] TokenType get_type() const {
+        return token_type;
+    }
+
+    [[nodiscard]] const std::string &get_text() const {
+        return token_text;
+    }
+
+private:
     TokenType token_type;
     std::string token_text;
-} Token;
+};
 
 #endif //JDBGE_TOKEN_H

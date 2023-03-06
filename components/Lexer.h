@@ -8,12 +8,16 @@
 #include <string>
 #include <vector>
 
+#include "Token.h"
+
 class Lexer {
 public:
     explicit Lexer(std::string content) : content(std::move(content)) {};
 
-    std::string next_token();
-    std::vector<std::string> collect();
+    Token next_token();
+
+    std::vector<Token> collect();
+
     void set_content(std::string new_content);
 
 private:
