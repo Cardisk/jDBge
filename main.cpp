@@ -32,16 +32,21 @@ std::string shift(int *argc, char ***argv) {
 
 void shell() {
     // TODO: query parsing, query execution
+
     Lexer lexer = Lexer("");
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
         std::string cmd;
         std::cout << ">> ";
         std::getline(std::cin, cmd);
+        if (std::cin.eof()) {
+            std::cout << std::endl;
+            break;
+        }
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
                        [](unsigned char c) { return std::tolower(c); });
-        if (cmd == "exit" || cmd == "quit") break;
+        if (cmd == "exit" || cmd == "quit" || !std::cin ) break;
 
         lexer.set_content(cmd);
 
