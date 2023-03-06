@@ -11,7 +11,8 @@
 #include <vector>
 
 typedef enum TokenType {
-    Invalid = 0,
+    E_O_F = 0,
+    Invalid,
 
     Symbol,
     Keyword,
@@ -29,7 +30,7 @@ class Token {
 public:
     Token(TokenType tokenType, std::string tokenText) : token_type(tokenType), token_text(std::move(tokenText)) {}
 
-    explicit Token(std::string tokenText) : token_type(TokenType::Invalid), token_text(std::move(tokenText)) {}
+    explicit Token(std::string tokenText) : token_type(TokenType::E_O_F), token_text(std::move(tokenText)) {}
 
     friend std::ostream &operator<<(std::ostream &os, const Token &obj) {
         std::cout << "{ ";

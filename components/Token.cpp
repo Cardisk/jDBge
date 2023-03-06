@@ -5,9 +5,10 @@
 #include "Token.h"
 
 std::string token_to_str(TokenType type) {
-    static_assert(TokenType::TYPE_COUNT == 6);
+    static_assert(TokenType::TYPE_COUNT == 7);
 
     switch (type) {
+        case TokenType::E_O_F: return "EOF";
         case TokenType::Invalid: return "Invalid";
         case TokenType::Symbol: return "Symbol";
         case TokenType::Keyword: return "Keyword";
