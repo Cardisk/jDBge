@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 typedef enum TokenType {
     Invalid = 0,
@@ -22,6 +23,8 @@ typedef enum TokenType {
     TYPE_COUNT,
 } TokenType;
 
+std::string token_to_str(TokenType type);
+
 class Token {
 public:
     Token(TokenType tokenType, std::string tokenText) : token_type(tokenType), token_text(std::move(tokenText)) {}
@@ -30,8 +33,8 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const Token &obj) {
         std::cout << "{ ";
-        std::cout << "token_type: " << obj.token_type;
-        std::cout << ", token_text: " << obj.token_text;
+        std::cout << "token_type: \'" << token_to_str(obj.token_type) << "\'";
+        std::cout << ", token_text: \'" << obj.token_text << "\'";
         std::cout << " }";
         return os;
     };

@@ -32,6 +32,7 @@ std::string shift(int *argc, char ***argv) {
 
 void shell() {
     // TODO: query parsing, query execution
+
     Lexer lexer = Lexer("");
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
