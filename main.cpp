@@ -41,7 +41,7 @@ void shell() {
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
                        [](unsigned char c) { return std::tolower(c); });
-        if (cmd == "exit" || cmd == "quit") break;
+        if (cmd == "exit" || cmd == "quit" || !std::cin ) break;
 
         lexer.set_content(cmd);
 
