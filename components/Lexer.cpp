@@ -19,3 +19,11 @@ std::string Lexer::next_token() {
 void Lexer::set_content(std::string new_content) {
     this->content = std::move(new_content);
 }
+
+std::vector<std::string> Lexer::collect() {
+    std::vector<std::string> tokens = std::vector<std::string>();
+
+    std::string token;
+    while (!(token = this->next_token()).empty()) tokens.push_back(token);
+    return tokens;
+}

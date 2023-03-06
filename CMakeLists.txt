@@ -3,4 +3,4 @@ project(jDBge)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(jDBge main.cpp Lexer.cpp Lexer.h)
+add_executable(jDBge main.cpp components/Lexer.cpp components/Lexer.h components/Token.h)

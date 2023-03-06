@@ -1,9 +1,17 @@
 #include <iostream>
 #include <string>
 
-#include "Lexer.h"
+#include "components/Lexer.h"
 
-void usage(const std::string& err) {
+#define vector_print(_VECTOR) \
+    do { \
+        std::cout << "[ "; \
+        for (size_t i = 0; i < _VECTOR.size(); i++) \
+            std::cout << _VECTOR[i] << (i < _VECTOR.size() - 1 ? ", " : ""); \
+        std::cout << " ]" << std::endl; \
+    } while(0)
+
+void usage(const std::string &err) {
     std::cerr << "jDBge: " << err << std::endl << std::endl;
     std::cerr << "usage: jDBge [SUBCOMMAND] [QUERY]" << std::endl;
     std::cerr << "options:" << std::endl;
@@ -30,15 +38,13 @@ void shell() {
         std::getline(std::cin, cmd);
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c) { return std::tolower(c); });
         if (cmd == "exit" || cmd == "quit") break;
 
         lexer.set_content(cmd);
 
-        std::string token;
-        while (!(token = lexer.next_token()).empty()) {
-            std::cout << token << std::endl;
-        }
+        std::vector<std::string> tokens = lexer.collect();
+        vector_print(tokens);
     }
 }
 
