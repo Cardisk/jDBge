@@ -39,6 +39,10 @@ void shell() {
         std::string cmd;
         std::cout << ">> ";
         std::getline(std::cin, cmd);
+        if (std::cin.eof()) {
+            std::cout << std::endl;
+            break;
+        }
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
                        [](unsigned char c) { return std::tolower(c); });
