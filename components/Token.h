@@ -18,8 +18,12 @@ typedef enum TokenType {
     Keyword,
     Number,
 
-    BinaryOp,
-    UnaryOp,
+    Equal,
+    BangEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
 
     TYPE_COUNT,
 } TokenType;

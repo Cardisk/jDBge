@@ -30,7 +30,22 @@ Token Lexer::next_token() {
         return {TokenType::Number, token_text};
     }
 
-    return {TokenType::Symbol, token_text};
+    if (isalpha(token_text[0]))
+        return {TokenType::Symbol, token_text};
+    else if (token_text == "==" || token_text == "=")
+        return {TokenType::Equal, token_text};
+    else if (token_text == "!=")
+        return {TokenType::BangEqual, token_text};
+    else if (token_text == ">")
+        return {TokenType::Greater, token_text};
+    else if (token_text == ">=")
+        return {TokenType::GreaterEqual, token_text};
+    else if (token_text == "<")
+        return {TokenType::Less, token_text};
+    else if (token_text == "<=")
+        return {TokenType::LessEqual, token_text};
+
+    return {TokenType::Invalid, token_text};
 }
 
 void Lexer::set_content(std::string new_content) {
