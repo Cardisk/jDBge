@@ -5,10 +5,11 @@
 #include "Token.h"
 
 std::string token_to_str(TokenType type) {
-    static_assert(TokenType::TYPE_COUNT == 11);
+    static_assert(TokenType::TYPE_COUNT == 12);
 
     switch (type) {
         case TokenType::E_O_F: return "EOF";
+        case TokenType::Meta_cmd: return "Meta_cmd";
         case TokenType::Invalid: return "Invalid";
         case TokenType::Symbol: return "Symbol";
         case TokenType::Keyword: return "Keyword";
