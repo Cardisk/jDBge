@@ -17,6 +17,9 @@ Token Lexer::next_token() {
     std::string token_text = this->content.substr(0, next_token_pos);
     this->content = this->content.erase(0, next_token_pos);
 
+    if (token_text[0] == '.') // this will check only if the token can be a possible meta_cmd
+        return {TokenType::Meta_cmd, token_text};
+
     for (const std::string& word : keywords) {
         if (token_text == word) {
             return {TokenType::Keyword, token_text};

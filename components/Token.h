@@ -12,6 +12,7 @@
 
 typedef enum TokenType {
     E_O_F = 0,
+    Meta_cmd,
     Invalid,
 
     Symbol,
