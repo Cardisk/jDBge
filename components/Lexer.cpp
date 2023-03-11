@@ -33,20 +33,27 @@ Token Lexer::next_token() {
         return {TokenType::Number, token_text};
     }
 
-    if (isalpha(token_text[0]))
+    if (token_text.length() > 2 && token_text.starts_with('"') && token_text.ends_with('"')) {
+        token_text = token_text.erase(0, 1);
+        token_text = token_text.erase(token_text.length() - 1, token_text.length());
+
         return {TokenType::Symbol, token_text};
-    else if (token_text == "==" || token_text == "=")
-        return {TokenType::Equal, token_text};
-    else if (token_text == "!=")
-        return {TokenType::BangEqual, token_text};
-    else if (token_text == ">")
-        return {TokenType::Greater, token_text};
-    else if (token_text == ">=")
-        return {TokenType::GreaterEqual, token_text};
-    else if (token_text == "<")
-        return {TokenType::Less, token_text};
-    else if (token_text == "<=")
-        return {TokenType::LessEqual, token_text};
+    } else if (!token_text.ends_with('"')) {
+        if (isalpha(token_text[0]))
+            return {TokenType::Symbol, token_text};
+        else if (token_text == "==" || token_text == "=")
+            return {TokenType::Equal, token_text};
+        else if (token_text == "!=")
+            return {TokenType::BangEqual, token_text};
+        else if (token_text == ">")
+            return {TokenType::Greater, token_text};
+        else if (token_text == ">=")
+            return {TokenType::GreaterEqual, token_text};
+        else if (token_text == "<")
+            return {TokenType::Less, token_text};
+        else if (token_text == "<=")
+            return {TokenType::LessEqual, token_text};
+    }
 
     return {TokenType::Invalid, token_text};
 }
