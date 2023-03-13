@@ -16,6 +16,8 @@ std::vector<std::string> keywords {
     "insert",
     "remove",
     "delete",
+    "and",
+    "or",
 };
 
 #endif //JDBGE_KEYWORDS_H

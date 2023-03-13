@@ -24,5 +24,6 @@ typedef struct Query {
     int limit;
 } Query;
 
+#define EMPTY_QUERY {"", "", {}, Filter(), 0}
 
 #endif //JDBGE_QUERY_H

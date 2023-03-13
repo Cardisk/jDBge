@@ -21,8 +21,15 @@ typedef struct Expression {
     std::string right;
 } Expression;
 
+#define EMPTY_EXPR {"", "", ""}
+
 class Filter {
 public:
+    explicit Filter() : ops(), ports() {}
+
+    void push_op(Expression expr);
+    void push_port(Boolean port);
+
     std::vector<Expression> get_ops() {
         return ops;
     }
@@ -37,6 +44,5 @@ private:
     std::vector<Expression> ops;
     std::vector<Boolean> ports;
 };
-
 
 #endif //JDBGE_FILTER_H
