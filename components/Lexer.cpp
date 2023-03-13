@@ -17,6 +17,14 @@ Token Lexer::next_token() {
     std::string token_text = this->content.substr(0, next_token_pos);
     this->content = this->content.erase(0, next_token_pos);
 
+    // tokenizing string literals with spaces inside them
+    if (token_text[0] == '"' && !this->content.empty()) {
+        size_t string_terminator = this->content.find('"');
+        token_text += this->content.substr(0, string_terminator + 1);
+        std::cout << "'" << token_text << "'" << std::endl;
+        this->content = this->content.erase(0, string_terminator + 1);
+    }
+
     if (token_text[0] == '.') // this will check only if the token can be a possible meta_cmd
         return {TokenType::Meta_cmd, token_text};
 
