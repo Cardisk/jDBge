@@ -5,6 +5,7 @@
 #include "Parser.h"
 
 #include <stack>
+#include <algorithm>
 
 bool Parser::validate_query() {
     if (this->tokens[0].get_type() != TokenType::Keyword) return false;

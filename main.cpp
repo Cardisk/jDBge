@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "components/Lexer.h"
+#include "components/Parser.h"
 
 #define vector_print(_VECTOR) \
     do { \
@@ -46,12 +47,15 @@ void shell() {
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
                        [](unsigned char c) { return std::tolower(c); });
-        if (cmd == "exit" || cmd == "quit" || !std::cin ) break;
+        if (cmd == "exit" || cmd == "quit" || !std::cin) break;
 
         lexer.set_content(cmd);
 
         std::vector<Token> tokens = lexer.collect();
         vector_print(tokens);
+        Parser parser = Parser(tokens);
+        Query query = parser.compile_query();
+        print_query(query)
     }
 }
 
