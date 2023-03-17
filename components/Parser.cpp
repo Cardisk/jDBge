@@ -10,20 +10,20 @@
 bool Parser::validate_query() {
     if (this->tokens[0].get_type() != TokenType::Keyword) return false;
     if (std::all_of(this->tokens.begin(), this->tokens.end(),
-                [](const Token& t) { return t.get_type() != TokenType::Invalid; }))
+                    [](const Token &t) { return t.get_type() != TokenType::Invalid; }))
         return true;
 
     return false;
 }
 
-Token vector_pop(std::vector<Token>& vector) {
+Token vector_pop(std::vector<Token> &vector) {
     if (vector.empty()) return Token("");
     Token temp = vector.back();
     vector.pop_back();
     return temp;
 }
 
-std::vector<std::string> string_split(std::string str, const std::string& delim) {
+std::vector<std::string> string_split(std::string str, const std::string &delim) {
     std::vector<std::string> v;
     while (!str.empty()) {
         size_t next_pos = str.find(delim);
@@ -36,7 +36,7 @@ std::vector<std::string> string_split(std::string str, const std::string& delim)
     return v;
 }
 
-void push_arg(std::vector<Item>& columns, Token& token, const std::string& opcode) {
+void push_arg(std::vector<Item> &columns, Token &token, const std::string &opcode) {
     std::vector<std::string> v = string_split(token.get_text(), ":");
     Item i = {
             .column = "",
@@ -50,7 +50,7 @@ void push_arg(std::vector<Item>& columns, Token& token, const std::string& opcod
     columns.push_back(i);
 }
 
-Expression parse_expr(std::vector<Token>& t) {
+Expression parse_expr(std::vector<Token> &t) {
     std::vector<Token> expr;
     for (int i = 0; i < 3; ++i) {
         expr.push_back(vector_pop(t));
@@ -67,7 +67,8 @@ Expression parse_expr(std::vector<Token>& t) {
         case TokenType::GreaterEqual:
         case TokenType::Less:
         case TokenType::LessEqual:
-            e.op = expr[1].get_text(); break;
+            e.op = expr[1].get_text();
+            break;
 
         default:
             std::cerr << "Invalid expression provided inside 'filter'" << std::endl;
@@ -80,7 +81,7 @@ Expression parse_expr(std::vector<Token>& t) {
 }
 
 Query Parser::compile_query() {
-    if (!this->validate_query()) return EMPTY_QUERY;
+    if (!this->validate_query()) return Query();
 
     std::reverse(this->tokens.begin(), this->tokens.end());
     std::string opcode = vector_pop(this->tokens).get_text();
@@ -92,47 +93,40 @@ Query Parser::compile_query() {
     Token temp = vector_pop(this->tokens);
     if (temp.get_type() == TokenType::Number)
         limit = temp.get_text();
-    else
-        if (temp.get_type() != TokenType::E_O_F && opcode == "table" || opcode == "insert")
-            push_arg(columns, temp, opcode);
+    else if (temp.get_type() != TokenType::E_O_F && opcode == "table" || opcode == "insert")
+        push_arg(columns, temp, opcode);
 
     while ((temp = vector_pop(this->tokens)).get_type() == TokenType::Symbol)
         push_arg(columns, temp, opcode);
 
     Filter filter;
     temp = vector_pop(this->tokens);
-    if(temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
+    if (temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
         while (!this->tokens.empty() && this->tokens.back().get_type() != TokenType::E_O_F) {
             Expression expr1 = parse_expr(this->tokens);
             if (expr1.left.empty() && expr1.op.empty() && expr1.right.empty()) {
                 std::cerr << "Found 'filter' token but there is no expression after it";
-                return EMPTY_QUERY;
+                return Query();
             }
             filter.push_op(expr1);
 
-            if((temp = vector_pop(this->tokens)).get_type() == TokenType::Keyword) {
+            if ((temp = vector_pop(this->tokens)).get_type() == TokenType::Keyword) {
                 if (temp.get_text() == "and") filter.push_port(Boolean::And);
                 else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
                 else {
                     std::cerr << "Invalid boolean operand provided inside 'filter'" << std::endl;
-                    return EMPTY_QUERY;
+                    return Query();
                 }
 
                 Expression expr2 = parse_expr(this->tokens);
                 if (expr2.left.empty() && expr2.op.empty() && expr2.right.empty()) {
                     std::cerr << "Found boolean operand but there is no expression after it";
-                    return EMPTY_QUERY;
+                    return Query();
                 }
                 filter.push_op(expr2);
             }
         }
     }
 
-    return Query {
-        .opcode = opcode,
-        .target = target,
-        .columns = columns,
-        .filter = filter,
-        .limit = std::stoi(limit),
-    };
+    return Query(opcode, target, columns, filter, std::stoi(limit));
 }

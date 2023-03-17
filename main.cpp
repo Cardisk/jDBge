@@ -55,7 +55,7 @@ void shell() {
         vector_print(tokens);
         Parser parser = Parser(tokens);
         Query query = parser.compile_query();
-        print_query(query)
+        std::cout << query << std::endl;
     }
 }
 
