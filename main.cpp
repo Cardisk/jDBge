@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "components/Lexer.h"
+#include "components/Parser.h"
 
 #define vector_print(_VECTOR) \
     do { \
@@ -34,6 +35,7 @@ void shell() {
     // TODO: query parsing, query execution
 
     Lexer lexer = Lexer("");
+    Parser parser = Parser();
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
         std::string cmd;
@@ -46,12 +48,15 @@ void shell() {
 
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
                        [](unsigned char c) { return std::tolower(c); });
-        if (cmd == "exit" || cmd == "quit" || !std::cin ) break;
+        if (cmd == "exit" || cmd == "quit" || !std::cin) break;
 
         lexer.set_content(cmd);
 
         std::vector<Token> tokens = lexer.collect();
-        vector_print(tokens);
+//        vector_print(tokens);
+        parser.set_tokens(tokens);
+        Query query = parser.compile_query();
+        if (query != EMPTY_QUERY) std::cout << query << std::endl;
     }
 }
 
@@ -73,7 +78,7 @@ int main(int argc, char **argv) {
         if (cmd == "help") {
             usage("just barely good enough DBMS");
         } else if (cmd == "shell") {
-            shell();                    // TODO: this will open an interactive shell
+            shell();
         } else if (cmd == "clean") {
             clean();                    // TODO: this will remove everything created by this program
         } else {
