@@ -8,43 +8,64 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <ostream>
 
 #include "Filter.h"
 
-typedef struct Item {
+class Item {
+public:
+    explicit Item(std::string column = "",
+                  std::string value = "",
+                  std::string type = "") :
+            column(std::move(column)),
+            value(std::move(value)),
+            type(std::move(type)) {}
+
+    friend std::ostream &operator<<(std::ostream &os, const Item &item) {
+        os << "{ column: '" << item.column << "', value: '" << item.value << "', type: '" << item.type << "' }";
+        return os;
+    }
+
+    friend bool operator==(const Item &self, const Item &other) {
+        return (self.column == other.column && self.value == other.value && self.type == other.type);
+    }
+
     std::string column;
     std::string value;
     std::string type;
-} Item;
+};
 
 class Query {
 public:
     explicit Query(std::string opcode = "",
-                 std::string target = "",
-                 std::vector<Item> columns = {},
-                 Filter filter = Filter(),
-                 int limit = 0) :
-                 opcode(std::move(opcode)),
-                 target(std::move(target)),
-                 columns(std::move(columns)),
-                 filter(std::move(filter)),
-                 limit(limit) {}
+                   std::string target = "",
+                   std::vector<Item> columns = {},
+                   Filter filter = Filter(),
+                   int limit = -1) :
+            opcode(std::move(opcode)),
+            target(std::move(target)),
+            columns(std::move(columns)),
+            filter(std::move(filter)),
+            limit(limit) {}
 
     friend std::ostream &operator<<(std::ostream &os, const Query &obj) {
-        std::cout << "Query: " << std::endl;
-        std::cout << "\topcode: " << obj.opcode << std::endl;
-        std::cout << "\ttarget: " << obj.target << std::endl;
-        std::cout << "\tlimit : " << obj.limit << std::endl;
-        std::cout << "\titems : {" << std::endl;
-        for (size_t i = 0; i < (obj.columns).size(); i++)
-            std::cout << "\t\titem {\n"
-                << "\t\t\tcolumn: " << (obj.columns)[i].column << std::endl
-                << "\t\t\ttype: " << (obj.columns)[i].type << std::endl
-                << "\t\t\tvalue: " << (obj.columns)[i].value << std::endl
-                << "\t\t}" << std::endl;
-        std::cout << "\t}" << std::endl;
-
+        os << "Query: " << std::endl;
+        os << "\topcode: " << obj.opcode << std::endl;
+        os << "\ttarget: " << obj.target << std::endl;
+        os << "\tlimit : " << obj.limit << std::endl;
+        os << "\titems : {" << std::endl;
+        for (const auto &column: obj.columns)
+            os << "\t\t" << column << std::endl;
+        os << "\t}" << std::endl;
+        os << "\tfilter: { " << obj.filter << " }";
         return os;
+    }
+
+    friend bool operator==(const Query &self, const Query &other) {
+        if (self.opcode != other.opcode) return false;
+
+        return (self.target == other.target && self.columns == other.columns &&
+                self.filter == other.filter && self.limit == other.limit);
     }
 
 private:
@@ -54,20 +75,5 @@ private:
     Filter filter;
     int limit;
 };
-
-//
-//#define EMPTY_QUERY {"", "", {}, Filter(), 0}
-//#define print_query(_QUERY) std::cout << "Query: " << std::endl; \
-//    std::cout << "\topcode: " << _QUERY.opcode << std::endl; \
-//    std::cout << "\ttarget: " << _QUERY.target << std::endl; \
-//    std::cout << "\tlimit : " << _QUERY.limit << std::endl; \
-//    std::cout << "\titems : " << std::endl; \
-//    for (size_t i = 0; i < (_QUERY.columns).size(); i++) \
-//            std::cout << "\t{\n" \
-//                << "\t\t" << (_QUERY.columns)[i].column << ",\n" \
-//                << "\t\t" << (_QUERY.columns)[i].type << ",\n" \
-//                << "\t\t" << (_QUERY.columns)[i].value \
-//                << std::endl; \
-//        std::cout << "\t}" << std::endl;
 
 #endif //JDBGE_QUERY_H

@@ -38,11 +38,7 @@ std::vector<std::string> string_split(std::string str, const std::string &delim)
 
 void push_arg(std::vector<Item> &columns, Token &token, const std::string &opcode) {
     std::vector<std::string> v = string_split(token.get_text(), ":");
-    Item i = {
-            .column = "",
-            .value = "",
-            .type = "",
-    };
+    Item i;
     i.column = v[0];
     if (opcode == "table") i.type = v[1];
     if (opcode == "insert") i.value = v[1];
@@ -57,7 +53,7 @@ Expression parse_expr(std::vector<Token> &t) {
     }
 
     Expression e;
-    if (expr[0].get_type() == TokenType::E_O_F) return EMPTY_EXPR;
+    if (expr[0].get_type() == TokenType::E_O_F) return Expression();
     else e.left = expr[0].get_text();
 
     switch (expr[1].get_type()) {
@@ -72,7 +68,7 @@ Expression parse_expr(std::vector<Token> &t) {
 
         default:
             std::cerr << "Invalid expression provided inside 'filter'" << std::endl;
-            return EMPTY_EXPR;
+            return Expression();
     }
 
     if (expr[2].get_type() != TokenType::E_O_F) e.right = expr[2].get_text();

@@ -13,7 +13,7 @@
 
 class Parser {
 public:
-    explicit Parser(std::vector<Token> v_tokens) : tokens(std::move(v_tokens)) {}
+    explicit Parser(std::vector<Token> v_tokens = {}) : tokens(std::move(v_tokens)) {}
 
     bool validate_query();
     Query compile_query();

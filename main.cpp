@@ -35,6 +35,7 @@ void shell() {
     // TODO: query parsing, query execution
 
     Lexer lexer = Lexer("");
+    Parser parser = Parser();
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
         std::string cmd;
@@ -52,8 +53,8 @@ void shell() {
         lexer.set_content(cmd);
 
         std::vector<Token> tokens = lexer.collect();
-        vector_print(tokens);
-        Parser parser = Parser(tokens);
+        // vector_print(tokens);
+        parser.set_tokens(tokens);
         Query query = parser.compile_query();
         std::cout << query << std::endl;
     }
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
         if (cmd == "help") {
             usage("just barely good enough DBMS");
         } else if (cmd == "shell") {
-            shell();                    // TODO: this will open an interactive shell
+            shell();
         } else if (cmd == "clean") {
             clean();                    // TODO: this will remove everything created by this program
         } else {
