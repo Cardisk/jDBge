@@ -8,14 +8,14 @@ Table Filter::filter_table(Table table) {
     return table;
 }
 
-std::string boolean_to_str(const Boolean b) {
+std::string bool_to_str(Boolean b) {
     switch (b) {
         case Boolean::And: return "and";
         case Boolean::Or: return "or";
     }
 }
 
-void Filter::push_op(Expression expr) {
+void Filter::push_op(const Expression& expr) {
     this->ops.push_back(expr);
 }
 

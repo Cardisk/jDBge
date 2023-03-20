@@ -68,6 +68,10 @@ public:
                 self.filter == other.filter && self.limit == other.limit);
     }
 
+    friend bool operator!=(const Query &self, const Query &other) {
+        return !operator==(self, other);
+    }
+
 private:
     std::string opcode;
     std::string target;
@@ -75,5 +79,7 @@ private:
     Filter filter;
     int limit;
 };
+
+#define EMPTY_QUERY Query()
 
 #endif //JDBGE_QUERY_H

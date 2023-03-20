@@ -53,10 +53,10 @@ void shell() {
         lexer.set_content(cmd);
 
         std::vector<Token> tokens = lexer.collect();
-        // vector_print(tokens);
+//        vector_print(tokens);
         parser.set_tokens(tokens);
         Query query = parser.compile_query();
-        std::cout << query << std::endl;
+        if (query != EMPTY_QUERY) std::cout << query << std::endl;
     }
 }
 

@@ -17,7 +17,7 @@ typedef enum Boolean {
     Or,
 } Boolean;
 
-std::string bool_to_str(const Boolean b);
+std::string bool_to_str(Boolean b);
 
 class Expression {
 public:
@@ -43,11 +43,13 @@ public:
     std::string right;
 };
 
+#define EMPTY_EXPR Expression()
+
 class Filter {
 public:
     explicit Filter() : ops(), ports() {}
 
-    void push_op(Expression expr);
+    void push_op(const Expression& expr);
 
     void push_port(Boolean port);
 
@@ -72,7 +74,7 @@ public:
         }
         os << " }, ports: { ";
         for (int i = 0; i < f.ports.size(); ++i) {
-            os << f.ports[i] << (i < f.ports.size() - 1 ? ", " : "");
+            os << bool_to_str(f.ports[i]) << (i < f.ports.size() - 1 ? ", " : "");
         }
         os << " }";
 
