@@ -12,6 +12,7 @@
 
 #include "Filter.h"
 
+/// Representing an argument for a generic query.
 class Item {
 public:
     explicit Item(std::string column = "",
@@ -35,6 +36,7 @@ public:
     std::string type;
 };
 
+/// Implementation of a query as a class.
 class Query {
 public:
     explicit Query(std::string opcode = "",

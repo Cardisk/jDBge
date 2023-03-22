@@ -9,10 +9,12 @@
 #include <map>
 #include <vector>
 
+/// Representation of a Row
 typedef struct Row {
     std::vector<std::string> values;
 } Row;
 
+/// Representation of a Table
 typedef struct Table {
     std::string name;
     std::map<std::string, std::string> schema;
