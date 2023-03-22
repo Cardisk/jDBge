@@ -12,13 +12,16 @@
 
 #include "Table.h"
 
+/// Enumeration representing a boolean operand.
 typedef enum Boolean {
     And = 0,
     Or,
 } Boolean;
 
+/// Converting a Boolean into a string.
 std::string bool_to_str(Boolean b);
 
+/// Representation of an Expression as a class.
 class Expression {
 public:
     explicit Expression(std::string left = "",
@@ -45,22 +48,28 @@ public:
 
 #define EMPTY_EXPR Expression()
 
+/// Implementation of a filter to read tables.
 class Filter {
 public:
     explicit Filter() : ops(), ports() {}
 
+    /// Pushes an Expression inside the filter
     void push_op(const Expression& expr);
 
+    /// Pushes a Boolean inside the filter
     void push_port(Boolean port);
 
+    /// Getter
     std::vector<Expression> get_ops() {
         return ops;
     }
 
+    /// Getter
     std::vector<Boolean> get_ports() {
         return ports;
     }
 
+    /// Filter the table
     Table filter_table(Table table);
 
     friend bool operator==(const Filter &self, const Filter &other) {

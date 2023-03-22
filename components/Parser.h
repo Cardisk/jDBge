@@ -11,13 +11,18 @@
 #include "Token.h"
 #include "Query.h"
 
+/// Implementation of a parser.
+/// It is capable of validating and compiling queries.
 class Parser {
 public:
     explicit Parser(std::vector<Token> v_tokens = {}) : tokens(std::move(v_tokens)) {}
 
+    /// Validating a query.
     bool validate_query();
+    /// Compiling a query.
     Query compile_query();
 
+    /// Setting new tokens to the parser.
     void set_tokens(std::vector<Token> new_tokens) {
         this->tokens = std::move(new_tokens);
     }

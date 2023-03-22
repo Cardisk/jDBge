@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 
+// Update this to insert new keywords
 std::vector<std::string> keywords {
     "table",
     "db",

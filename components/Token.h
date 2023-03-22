@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+/// Enumeration representing the type of the token.
 typedef enum TokenType {
     E_O_F = 0,
     Meta_cmd,
@@ -29,8 +30,10 @@ typedef enum TokenType {
     TYPE_COUNT,
 } TokenType;
 
+/// Converting a TokenType into a string.
 std::string token_to_str(TokenType type);
 
+/// Implementation of a token as a class.
 class Token {
 public:
     Token(TokenType tokenType, std::string tokenText) : token_type(tokenType), token_text(std::move(tokenText)) {}

@@ -5,6 +5,7 @@
 #include "Token.h"
 
 std::string token_to_str(TokenType type) {
+    // compile time assert to prevent implementation of new types without updating here
     static_assert(TokenType::TYPE_COUNT == 12);
 
     switch (type) {
