@@ -40,6 +40,7 @@ std::string shift(int *argc, char ***argv) {
 /// Interactive shell.
 void shell() {
     // TODO: query execution
+    std::vector<std::string> history;
 
     Lexer lexer = Lexer("");
     Parser parser = Parser();

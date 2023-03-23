@@ -149,7 +149,9 @@ Query Parser::compile_query() {
     }
 
     // if the target is still empty store it
-    if (target.empty() && has_tokens) target = vector_pop(this->tokens).get_text();
+    if (target.empty() && has_tokens &&
+        tokens_peek.get_type() == TokenType::Symbol)
+            target = vector_pop(this->tokens).get_text();
 
     // store the arguments of the query (if no one is provided it means that the user needs all of them)
     std::vector<Item> columns;
