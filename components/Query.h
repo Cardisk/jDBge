@@ -48,7 +48,17 @@ public:
             target(std::move(target)),
             columns(std::move(columns)),
             filter(std::move(filter)),
-            limit(limit) {}
+            limit(limit) {};
+
+    // seems a decent idea
+    enum OpCode {
+        TABLE,
+        DB,
+        SELECT,
+        INSERT,
+        REMOVE,
+        DELETE
+    };
 
     friend std::ostream &operator<<(std::ostream &os, const Query &obj) {
         os << "Query: " << std::endl;

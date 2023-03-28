@@ -17,7 +17,7 @@ typedef struct Row {
 /// Representation of a Table
 typedef struct Table {
     std::string name;
-    std::map<std::string, std::string> schema;
+    std::map<std::string, int> schema;
     std::vector<Row> rows;
 } Table;
 
