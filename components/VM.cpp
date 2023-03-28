@@ -3,3 +3,9 @@
 //
 
 #include "VM.h"
+
+bool VM::exec_query(Query const& query) {
+    std::string opcode = query.getOpcode();
+
+    if (opcode == 'select')
+}

@@ -74,6 +74,46 @@ public:
         return !operator==(self, other);
     }
 
+    const std::string &getOpcode() const {
+        return opcode;
+    }
+
+    void setOpcode(const std::string &opcode) {
+        Query::opcode = opcode;
+    }
+
+    const std::string &getTarget() const {
+        return target;
+    }
+
+    void setTarget(const std::string &target) {
+        Query::target = target;
+    }
+
+    const std::vector<Item> &getColumns() const {
+        return columns;
+    }
+
+    void setColumns(const std::vector<Item> &columns) {
+        Query::columns = columns;
+    }
+
+    const Filter &getFilter() const {
+        return filter;
+    }
+
+    void setFilter(const Filter &filter) {
+        Query::filter = filter;
+    }
+
+    int getLimit() const {
+        return limit;
+    }
+
+    void setLimit(int limit) {
+        Query::limit = limit;
+    }
+
 private:
     std::string opcode;
     std::string target;
