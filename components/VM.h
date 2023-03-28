@@ -21,15 +21,17 @@ public:
     bool get_tables(Query const& query);
 
 private:
-    std::vector<Table> database;
+    std::string current_db;
+    std::map<std::string, std::vector<Table>> databases;//double map?
+    Table query_result;
 
-    bool do_select(std::string table_name, std::vector<Item> columns, Filter filter);
-    bool do_insert(std::string table_name, std::vector<Item> columns);
+    bool flush();
+    bool do_select(std::string const& table_name, std::vector<Item> const& fields, Filter const& filter);
+    bool do_insert(std::string const& table_name, std::vector<Item> const& fields);
     bool do_remove(std::string table_name, Filter filter);
     bool do_delete(std::string target);
     bool do_db(std::string db_name);
     bool do_table(std::string table_name, std::vector<Item> schema);
-
 };
 
 

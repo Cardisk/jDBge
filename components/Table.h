@@ -9,6 +9,11 @@
 #include <map>
 #include <vector>
 
+typedef struct Column {
+    int index;
+    std::string type; // might need better definition once filter is in place
+} Column;
+
 /// Representation of a Row
 typedef struct Row {
     std::vector<std::string> values;
@@ -17,7 +22,7 @@ typedef struct Row {
 /// Representation of a Table
 typedef struct Table {
     std::string name;
-    std::map<std::string, int> schema;
+    std::map<std::string, Column> schema;
     std::vector<Row> rows;
 } Table;
 
