@@ -5,6 +5,7 @@
 
 #include "components/Lexer.h"
 #include "components/Parser.h"
+#include "components/VM.h"
 
 #define vector_print(_VECTOR) \
     do { \
@@ -14,6 +15,22 @@
         std::cout << " ]" << std::endl; \
     } while(0)
 
+
+void table_print(Table const& t) {
+    std::cout << t.name << std::endl;
+    for (std::pair column : t.schema){
+        std::cout << column.first << '\t';
+    }
+    std::cout << std::endl;
+
+    for (Row row : t.rows) {
+        for (std::string value : row.values){
+            std::cout << value << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+}
 /// Printing the usage with a custom error message.
 /// \param err Error message
 void usage(const std::string &err) {
@@ -41,6 +58,7 @@ std::string shift(int *argc, char ***argv) {
 void shell() {
     // TODO: query execution
     std::vector<std::string> history;
+    VM vm = VM();
 
     Lexer lexer = Lexer("");
     Parser parser = Parser();
@@ -69,6 +87,8 @@ void shell() {
         // parsing with the parser
         parser.set_tokens(tokens);
         Query query = parser.compile_query();
+        vm.exec_query(query);
+        table_print(vm.query_result);
 
         // at the moment it only prints to the stdout
         if (query != EMPTY_QUERY) std::cout << query << std::endl;

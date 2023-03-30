@@ -13,8 +13,9 @@
 
 class VM {
 public:
-    explicit VM();
+    Table query_result;
 
+    explicit VM();
     bool exec_query(Query const& query);
     std::vector<std::string> get_available_dbs();
     bool get_schema(Query const& query);
@@ -23,15 +24,14 @@ public:
 private:
     std::string current_db;
     std::map<std::string, std::vector<Table>> databases;//double map?
-    Table query_result;
 
-    bool flush();
+    void flush();
     bool do_select(std::string const& table_name, std::vector<Item> const& fields, Filter const& filter);
     bool do_insert(std::string const& table_name, std::vector<Item> const& fields);
-    bool do_remove(std::string table_name, Filter filter);
-    bool do_delete(std::string target);
-    bool do_db(std::string db_name);
-    bool do_table(std::string table_name, std::vector<Item> schema);
+    bool do_remove(std::string const& table_name, Filter filter);
+    bool do_delete(std::string const& target);
+    bool do_db(std::string const& db_name);
+    bool do_table(std::string const& table_name, std::vector<Item> schema);
 };
 
 
