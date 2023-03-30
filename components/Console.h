@@ -74,7 +74,7 @@ public:
 
             if (ch >= Keys::first_printable && ch <= Keys::last_printable) {
                 if (!cursor) str.push_back((char) ch);
-                else str.insert((str.size() - 1) - cursor, 1, (char) ch);
+                else str.insert(str.size() - cursor, 1, (char) ch);
             } else {
                 switch (ch) {
                     case Keys::macos_first_arrow:
