@@ -3,6 +3,7 @@
 #include <cassert>
 #include <algorithm>
 
+#include "components/Console.h"
 #include "components/Lexer.h"
 #include "components/Parser.h"
 
@@ -44,17 +45,11 @@ void shell() {
 
     Lexer lexer = Lexer("");
     Parser parser = Parser();
-    // raw string as an header
+    // raw string as a header
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
         std::string cmd;
-        std::cout << ">> ";
-        std::getline(std::cin, cmd);
-        // handling ctrl-C and ctrl-D
-        if (std::cin.eof()) {
-            std::cout << std::endl;
-            break;
-        }
+        Console::getty(cmd, ">> ");
 
         // setting the new command to lowercase
         std::transform(cmd.begin(), cmd.end(), cmd.begin(),
@@ -65,6 +60,8 @@ void shell() {
         // tokenizing with the lexer
         lexer.set_content(cmd);
         std::vector<Token> tokens = lexer.collect();
+
+        vector_print(tokens);
 
         // parsing with the parser
         parser.set_tokens(tokens);
