@@ -45,6 +45,12 @@ std::vector<std::string> string_split(std::string str, const std::string &delim)
         std::string txt = str.substr(0, next_pos);
         str.erase(0, next_pos + delim.length());
 
+        // removing double quotes if provided by the user
+        if (txt.starts_with("\"") && txt.ends_with("\"")) {
+            txt.pop_back();
+            txt.erase(0, 1);
+        }
+
         if (!txt.empty()) v.push_back(txt);
     } while (next_pos != std::string::npos);
 
@@ -83,7 +89,7 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
 /// \param t Tokens
 /// \return A new Expression
 Expression parse_expr(std::vector<Token> &t) {
-    std::vector<Token> expr;
+    std::vector<Token> expr(3);
     // pop three tokens out of the vector
     for (int i = 0; i < 3; ++i) {
         expr.push_back(vector_pop(t));
