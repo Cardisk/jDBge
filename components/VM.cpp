@@ -4,6 +4,7 @@
 
 #include "VM.h"
 #include <algorithm>
+#include <iostream>
 
 VM::VM() {
     current_db = "";
@@ -57,6 +58,18 @@ bool VM::do_select(std::string const &table_name, std::vector<Item> const &field
                 query_result.schema = to_map(fields);
             }
             query_result.rows = table.rows;
+
+            std::cout << query_result.name << std::endl;
+            for (const auto& column: query_result.schema)
+                std::cout << column.first << '\t' << '\t';
+            std::cout << std::endl;
+
+            for (const Row& row: query_result.rows) {
+                for (const std::string& value: row.values)
+                    std::cout << value << '\t' << '\t';
+                std::cout << std::endl;
+            }
+
             return true;
         }
     }

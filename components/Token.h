@@ -41,10 +41,10 @@ public:
     explicit Token(std::string tokenText = "") : token_type(TokenType::E_O_F), token_text(std::move(tokenText)) {}
 
     friend std::ostream &operator<<(std::ostream &os, const Token &obj) {
-        std::cout << "{ ";
-        std::cout << "token_type: \'" << token_to_str(obj.token_type) << "\'";
-        std::cout << ", token_text: \'" << obj.token_text << "\'";
-        std::cout << " }";
+        os << "{ ";
+        os << "token_type: \'" << token_to_str(obj.token_type) << "\'";
+        os << ", token_text: \'" << obj.token_text << "\'";
+        os << " }";
         return os;
     };
 
