@@ -20,7 +20,7 @@ Token Lexer::next_token() {
     this->content = this->content.erase(0, next_token_pos);
 
     // tokenizing symbols like foo:"bar baz" to work with insert queries
-    if (token_text.contains("\"")) {
+    if (token_text.contains("\"") && !token_text.ends_with('"')) {
         next_token_pos = this->content.find('"');
         token_text += this->content.substr(0, next_token_pos + 1);
         this->content = this->content.erase(0, next_token_pos + 1);
