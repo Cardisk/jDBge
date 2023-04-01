@@ -38,7 +38,7 @@ class Token {
 public:
     Token(TokenType tokenType, std::string tokenText) : token_type(tokenType), token_text(std::move(tokenText)) {}
 
-    explicit Token(std::string tokenText) : token_type(TokenType::E_O_F), token_text(std::move(tokenText)) {}
+    explicit Token(std::string tokenText = "") : token_type(TokenType::E_O_F), token_text(std::move(tokenText)) {}
 
     friend std::ostream &operator<<(std::ostream &os, const Token &obj) {
         std::cout << "{ ";

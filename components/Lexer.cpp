@@ -11,13 +11,20 @@ Token Lexer::next_token() {
     // trimming the content
     this->trim_left();
     if (this->content.empty()) {
-        return Token("");
+        return Token();
     }
 
     // getting the substring and erasing it from the lexer content
     size_t next_token_pos = this->content.find(' ');
     std::string token_text = this->content.substr(0, next_token_pos);
     this->content = this->content.erase(0, next_token_pos);
+
+    // tokenizing symbols like foo:"bar baz" to work with insert queries
+    if (token_text.contains("\"")) {
+        next_token_pos = this->content.find('"');
+        token_text += this->content.substr(0, next_token_pos + 1);
+        this->content = this->content.erase(0, next_token_pos + 1);
+    }
 
     // tokenizing string literals with spaces inside them
     if (token_text[0] == '"' && !this->content.empty()) {
@@ -73,6 +80,8 @@ Token Lexer::next_token() {
         // checking if the token is a less_equal operator
         else if (token_text == "<=")
             return {TokenType::LessEqual, token_text};
+    } else if (isalpha(token_text[0]) && token_text.contains(":")) {
+        return {TokenType::Symbol, token_text};
     }
 
     // if the execution arrives here, it is an invalid one
@@ -86,7 +95,7 @@ void Lexer::set_content(std::string new_content) {
 std::vector<Token> Lexer::collect() {
     // collecting all the tokens into a vector
     std::vector<Token> tokens = std::vector<Token>();
-    Token token = Token("");
+    Token token = Token();
     while ((token = this->next_token()).get_type() != TokenType::E_O_F) tokens.push_back(token);
     return tokens;
 }
