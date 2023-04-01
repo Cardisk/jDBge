@@ -58,8 +58,6 @@ std::string shift(int *argc, char ***argv) {
 
 /// Interactive shell.
 void shell() {
-    // TODO: query execution
-    std::vector<std::string> history;
     VM vm = VM();
 
     Lexer lexer = Lexer("");
@@ -80,16 +78,17 @@ void shell() {
         lexer.set_content(cmd);
         std::vector<Token> tokens = lexer.collect();
 
-        vector_print(tokens);
+        // vector_print(tokens);
 
         // parsing with the parser
         parser.set_tokens(tokens);
         Query query = parser.compile_query();
-        vm.exec_query(query);
-        table_print(vm.query_result);
+
+        if (vm.exec_query(query))
+            table_print(vm.query_result);
 
         // at the moment it only prints to the stdout
-        if (query != EMPTY_QUERY) std::cout << query << std::endl;
+        // if (query != EMPTY_QUERY) std::cout << query << std::endl;
     }
 }
 
