@@ -33,15 +33,19 @@ private:
 
     bool do_select(std::string const &table_name, std::vector<Item> const &fields, Filter const &filter);
 
+    bool do_select(std::string const &table_name, std::vector<Item> const &fields);
+
     bool do_insert(std::string const &table_name, std::vector<Item> const &fields);
 
     bool do_remove(std::string const &table_name, Filter filter);
+
+    bool do_remove(std::string const &table_name);
 
     bool do_delete(std::string const &target);
 
     bool do_db(std::string const &db_name);
 
-    void do_table(const std::string &table_name, const std::vector<Item>& schema);
+    void do_table(const std::string &table_name, const std::vector<Item> &schema);
 };
 
 

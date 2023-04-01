@@ -20,13 +20,13 @@
 void table_print(Table const &t) {
     std::cout << t.name << std::endl;
     for (std::pair column: t.schema) {
-        std::cout << column.first << '\t';
+        std::cout << column.first << '\t' << '\t';
     }
     std::cout << std::endl;
 
     for (Row row: t.rows) {
         for (std::string value: row.values) {
-            std::cout << value << '\t';
+            std::cout << value << '\t' << '\t';
         }
         std::cout << std::endl;
     }
