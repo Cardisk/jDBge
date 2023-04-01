@@ -41,7 +41,7 @@ private:
 
     bool do_db(std::string const &db_name);
 
-    bool do_table(std::string const &table_name, std::vector<Item> schema);
+    void do_table(const std::string &table_name, const std::vector<Item>& schema);
 };
 
 
