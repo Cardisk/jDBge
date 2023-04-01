@@ -124,3 +124,30 @@ void VM::do_table(const std::string &table_name, const std::vector<Item> &schema
 bool VM::do_remove(const std::string &table_name) {
     return do_remove(table_name, Filter());
 }
+
+std::vector<std::string> VM::get_available_dbs() {
+    std::vector<std::string> dbs;
+    for (auto it = databases.begin(); it != databases.end(); ++it) {
+        dbs.push_back(it->first);
+    }
+    return dbs;
+}
+
+Table VM::get_schema(const std::string &db_name, const std::string &table_name) {
+    Table schema = Table();
+    for (const Table &table: databases[db_name]) {
+        if (table.name == table_name) {
+            schema.schema = table.schema;
+        }
+    }
+    return schema;
+}
+
+std::vector<std::string> VM::get_tables_names(const std::string &db_name) {
+    std::vector<std::string> tables_names;
+    for (const Table &table: databases[db_name]) {
+        tables_names.push_back(table.name);
+    }
+    return tables_names;
+}
+

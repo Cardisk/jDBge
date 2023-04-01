@@ -21,9 +21,9 @@ public:
 
     std::vector<std::string> get_available_dbs();
 
-    bool get_schema(Query const &query);
+    Table get_schema(const std::string &db_name, const std::string &table_name);
 
-    bool get_tables(Query const &query);
+    std::vector<std::string> get_tables_names(const std::string &db_name);
 
 private:
     std::string current_db;
