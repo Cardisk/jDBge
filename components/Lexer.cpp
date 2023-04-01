@@ -38,7 +38,7 @@ Token Lexer::next_token() {
         return {TokenType::Meta_cmd, token_text};
 
     // checking if the token is a keyword
-    for (const std::string& word : keywords) {
+    for (const std::string &word: keywords) {
         if (token_text == word) {
             return {TokenType::Keyword, token_text};
         }
@@ -46,7 +46,7 @@ Token Lexer::next_token() {
 
     // checking if the token is a number
     if (isdigit(token_text[0])) {
-        for (const char& c : token_text) {
+        for (const char &c: token_text) {
             if (!isdigit(c)) return {TokenType::Invalid, token_text};
         }
         return {TokenType::Number, token_text};
@@ -62,22 +62,22 @@ Token Lexer::next_token() {
         // checking if the token is a symbol
         if (isalpha(token_text[0]))
             return {TokenType::Symbol, token_text};
-        // checking if the token is an is_equal operator
+            // checking if the token is an is_equal operator
         else if (token_text == "==" || token_text == "=")
             return {TokenType::Equal, token_text};
-        // checking if the token is a bang_equal operator
+            // checking if the token is a bang_equal operator
         else if (token_text == "!=")
             return {TokenType::BangEqual, token_text};
-        // checking if the token is a greater_than operator
+            // checking if the token is a greater_than operator
         else if (token_text == ">")
             return {TokenType::Greater, token_text};
-        // checking if the token is a greater_equal operator
+            // checking if the token is a greater_equal operator
         else if (token_text == ">=")
             return {TokenType::GreaterEqual, token_text};
-        // checking if the token is a less_than operator
+            // checking if the token is a less_than operator
         else if (token_text == "<")
             return {TokenType::Less, token_text};
-        // checking if the token is a less_equal operator
+            // checking if the token is a less_equal operator
         else if (token_text == "<=")
             return {TokenType::LessEqual, token_text};
     } else if (isalpha(token_text[0]) && token_text.contains(":")) {

@@ -71,10 +71,9 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
     if (v.size() > 1 && (opcode == "table" || opcode == "insert")) {
         // if it is a 'table' query, store the type
         if (opcode == "table") i.type = v[1];
-        // if it is a 'insert' query, store the value
+            // if it is a 'insert' query, store the value
         else if (opcode == "insert") i.value = v[1];
-    }
-    else if (opcode == "table" || opcode == "insert") {
+    } else if (opcode == "table" || opcode == "insert") {
         // if the execution reaches this point, it's an invalid token
         std::cerr << "Invalid token '" << token.get_text() << "'" << std::endl;
         return false;
@@ -157,7 +156,7 @@ Query Parser::compile_query() {
     // if the target is still empty store it
     if (target.empty() && has_tokens &&
         tokens_peek.get_type() == TokenType::Symbol)
-            target = vector_pop(this->tokens).get_text();
+        target = vector_pop(this->tokens).get_text();
 
     // store the arguments of the query (if no one is provided it means that the user needs all of them)
     std::vector<Item> columns;
@@ -210,8 +209,9 @@ Query Parser::compile_query() {
                     std::cerr << "Found boolean operand but any expression is provided after it" << std::endl;
                     return EMPTY_QUERY;
                 }
-            } else if (temp.get_type() != TokenType::E_O_F){
-                std::cerr << "Invalid token '" << temp.get_text() << "' found where a boolean operand is expected" << std::endl;
+            } else if (temp.get_type() != TokenType::E_O_F) {
+                std::cerr << "Invalid token '" << temp.get_text() << "' found where a boolean operand is expected"
+                          << std::endl;
                 return EMPTY_QUERY;
             }
         }

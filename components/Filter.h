@@ -54,7 +54,7 @@ public:
     explicit Filter() : ops(), ports() {}
 
     /// Pushes an Expression inside the filter
-    void push_op(const Expression& expr);
+    void push_op(const Expression &expr);
 
     /// Pushes a Boolean inside the filter
     void push_port(Boolean port);

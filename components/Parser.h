@@ -19,6 +19,7 @@ public:
 
     /// Validating a query.
     bool validate_query();
+
     /// Compiling a query.
     Query compile_query();
 

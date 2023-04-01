@@ -9,16 +9,16 @@
 #include <string>
 
 // Update this to insert new keywords
-std::vector<std::string> keywords {
-    "table",
-    "db",
-    "select",
-    "filter",
-    "insert",
-    "remove",
-    "delete",
-    "and",
-    "or",
+std::vector<std::string> keywords{
+        "table",
+        "db",
+        "select",
+        "filter",
+        "insert",
+        "remove",
+        "delete",
+        "and",
+        "or",
 };
 
 #endif //JDBGE_KEYWORDS_H

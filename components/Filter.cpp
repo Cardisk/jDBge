@@ -10,12 +10,14 @@ Table Filter::filter_table(Table table) {
 
 std::string bool_to_str(Boolean b) {
     switch (b) {
-        case Boolean::And: return "and";
-        case Boolean::Or: return "or";
+        case Boolean::And:
+            return "and";
+        case Boolean::Or:
+            return "or";
     }
 }
 
-void Filter::push_op(const Expression& expr) {
+void Filter::push_op(const Expression &expr) {
     this->ops.push_back(expr);
 }
 

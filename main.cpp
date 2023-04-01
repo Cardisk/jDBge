@@ -17,21 +17,22 @@
     } while(0)
 
 
-void table_print(Table const& t) {
+void table_print(Table const &t) {
     std::cout << t.name << std::endl;
-    for (std::pair column : t.schema){
+    for (std::pair column: t.schema) {
         std::cout << column.first << '\t';
     }
     std::cout << std::endl;
 
-    for (Row row : t.rows) {
-        for (std::string value : row.values){
+    for (Row row: t.rows) {
+        for (std::string value: row.values) {
             std::cout << value << '\t';
         }
         std::cout << std::endl;
     }
 
 }
+
 /// Printing the usage with a custom error message.
 /// \param err Error message
 void usage(const std::string &err) {

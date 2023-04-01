@@ -35,20 +35,20 @@ void VM::flush() {
     query_result.schema.clear();
 }
 
-std::map<std::string, Column> to_map(std::vector<Item> const& columns){
+std::map<std::string, Column> to_map(std::vector<Item> const &columns) {
     int index = 0;
     std::map<std::string, Column> schema;
-    for (Item item : columns){
+    for (Item item: columns) {
         schema.insert({item.column, Column{index++, item.type}});
     }
     return schema;
 }
 
 // TODO: Do filter on query result, was not implemented due to Filter not being ready
-bool VM::do_select(std::string const& table_name, std::vector<Item> const& fields, Filter const& filter) {
-    std::vector<Table> const& database = databases[current_db];
-    for (Table const& table : database){
-        if (table.name == table_name){
+bool VM::do_select(std::string const &table_name, std::vector<Item> const &fields, Filter const &filter) {
+    std::vector<Table> const &database = databases[current_db];
+    for (Table const &table: database) {
+        if (table.name == table_name) {
             flush();
             query_result.schema = to_map(fields);
             query_result.rows = table.rows;
@@ -59,12 +59,12 @@ bool VM::do_select(std::string const& table_name, std::vector<Item> const& field
 }
 
 
-bool VM::do_insert(std::string const& table_name, const std::vector<Item> &fields) {
-    std::vector<Table> const& database = databases[current_db];
-    for (Table table : database){
+bool VM::do_insert(std::string const &table_name, const std::vector<Item> &fields) {
+    std::vector<Table> const &database = databases[current_db];
+    for (Table table: database) {
         if (table.name == table_name) {
             Row new_row;
-            for (Item const& field : fields){
+            for (Item const &field: fields) {
                 new_row.values.insert(new_row.values.begin() + table.schema.at(field.column).index, field.value);
             }
             table.rows.push_back(new_row);
@@ -74,9 +74,9 @@ bool VM::do_insert(std::string const& table_name, const std::vector<Item> &field
     return false;
 }
 
-bool VM::do_remove(std::string const& table_name, Filter filter) {
-    std::vector<Table>& database = databases[current_db];
-    for (auto it = database.begin(); it != database.end(); it++){
+bool VM::do_remove(std::string const &table_name, Filter filter) {
+    std::vector<Table> &database = databases[current_db];
+    for (auto it = database.begin(); it != database.end(); it++) {
         if ((*it).name == table_name) {
             database.erase(it);
             return true;
@@ -85,18 +85,18 @@ bool VM::do_remove(std::string const& table_name, Filter filter) {
     return false;
 }
 
-bool VM::do_delete(std::string const& target) {
+bool VM::do_delete(std::string const &target) {
     databases.erase(target);
     return true;
 }
 
 bool VM::do_db(const std::string &db_name) {
-    databases.insert({ db_name, std::vector<Table>() });
+    databases.insert({db_name, std::vector<Table>()});
     return true;
 }
 
 bool VM::do_table(const std::string &table_name, std::vector<Item> schema) {
-    std::vector<Table>& database = databases[current_db];
+    std::vector<Table> &database = databases[current_db];
     Table new_table;
     new_table.schema = to_map(schema);
     database.push_back(new_table);
