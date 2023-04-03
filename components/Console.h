@@ -152,15 +152,10 @@ public:
     }
 
     // should be set to false if you want some sort of password field
-    static bool echo;
+    inline static bool echo = true;
     // should be set to true if you want to implement a history
-    static bool has_history;
-    static std::deque<std::string> history;
+    inline static bool has_history = true;
+    inline static std::deque<std::string> history = {};
 };
-
-bool Console::echo = true;
-bool Console::has_history = true;
-std::deque<std::string> Console::history = {};
-
 
 #endif //CONSOLE_H

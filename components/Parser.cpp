@@ -3,6 +3,7 @@
 //
 
 #include "Parser.h"
+#include "Logger.h"
 
 #include <iostream>
 #include <algorithm>
@@ -64,6 +65,7 @@ std::vector<std::string> string_split(std::string str, const std::string &delim)
 /// \param opcode Which query require that argument
 /// \return A boolean representing the result of the function
 bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcode) {
+    Logger &logger = Logger::get_instance();
     std::vector<std::string> v = string_split(token.get_text(), ":");
     Item i;
     // default for all the commands
@@ -75,7 +77,7 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
         else if (opcode == "insert") i.value = v[1];
     } else if (opcode == "table" || opcode == "insert") {
         // if the execution reaches this point, it's an invalid token
-        std::cerr << "Invalid token '" << token.get_text() << "'" << std::endl;
+        logger.error("invalid token" + token.get_text());
         return false;
     }
 
@@ -88,6 +90,7 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
 /// \param t Tokens
 /// \return A new Expression
 Expression parse_expr(std::vector<Token> &t) {
+    Logger &logger = Logger::get_instance();
     std::vector<Token> expr(3);
     // pop three tokens out of the vector
     for (int i = 0; i < 3; ++i) {
@@ -112,7 +115,7 @@ Expression parse_expr(std::vector<Token> &t) {
 
         default:
             // if the execution reaches this point, is an invalid expression
-            std::cerr << "Invalid expression provided inside 'filter'" << std::endl;
+            logger.error("Invalid expression provided inside 'filter'");
             return EMPTY_EXPR;
     }
 
@@ -127,9 +130,10 @@ Expression parse_expr(std::vector<Token> &t) {
 #define tokens_peek this->tokens.back()
 
 Query Parser::compile_query() {
+    Logger &logger = Logger::get_instance();
     // validating
     if (!this->validate_query()) {
-        std::cerr << "Invalid query provided" << std::endl;
+        logger.error("invalid query provided");
         return EMPTY_QUERY;
     }
 
@@ -149,7 +153,7 @@ Query Parser::compile_query() {
         target = temp.get_text();
     else {
         // if the execution reaches this point, is an invalid query
-        std::cerr << "Invalid token '" << temp.get_text() << "'" << std::endl;
+        logger.error("invalid token '" + temp.get_text() + "'");
         return EMPTY_QUERY;
     }
 
@@ -172,7 +176,7 @@ Query Parser::compile_query() {
 
     // metal detector for ugly queries
     if (opcode == "table" && columns.empty()) {
-        std::cerr << "Invalid 'table' query" << std::endl;
+        logger.error("invalid 'table' query");
         return EMPTY_QUERY;
     }
 
@@ -182,7 +186,7 @@ Query Parser::compile_query() {
     if (temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
         // if there is nothing after it, it is an invalid query
         if (!has_tokens) {
-            std::cerr << "Found 'filter' token but there is no expression after it" << std::endl;
+            logger.error("Found 'filter' token but there is no expression after it");
             return EMPTY_QUERY;
         }
 
@@ -190,7 +194,7 @@ Query Parser::compile_query() {
         while (has_tokens && tokens_peek.get_type() != TokenType::E_O_F) {
             Expression expr = parse_expr(this->tokens);
             if (expr == EMPTY_EXPR) {
-                std::cerr << "Found 'filter' token but there is no expression after it" << std::endl;
+                logger.error("Found 'filter' token but there is no expression after it");
                 return EMPTY_QUERY;
             }
             filter.push_op(expr);
@@ -200,18 +204,17 @@ Query Parser::compile_query() {
                 if (temp.get_text() == "and") filter.push_port(Boolean::And);
                 else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
                 else {
-                    std::cerr << "Invalid boolean operand provided inside 'filter'" << std::endl;
+                    logger.error("Invalid boolean operand provided inside 'filter'");
                     return EMPTY_QUERY;
                 }
 
                 // if after the boolean there is an EOF, it is an invalid query
                 if (!has_tokens) {
-                    std::cerr << "Found boolean operand but any expression is provided after it" << std::endl;
+                    logger.error("Found boolean operand but any expression is provided after it");
                     return EMPTY_QUERY;
                 }
             } else if (temp.get_type() != TokenType::E_O_F) {
-                std::cerr << "Invalid token '" << temp.get_text() << "' found where a boolean operand is expected"
-                          << std::endl;
+                logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
                 return EMPTY_QUERY;
             }
         }

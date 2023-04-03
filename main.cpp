@@ -7,6 +7,7 @@
 #include "components/Lexer.h"
 #include "components/Parser.h"
 #include "components/VM.h"
+#include "components/Logger.h"
 
 #define vector_print(_VECTOR) \
     do { \
@@ -41,10 +42,12 @@ std::string shift(int *argc, char ***argv) {
 
 /// Interactive shell.
 void shell() {
-    VM vm = VM();
-
-    Lexer lexer = Lexer("");
+    Lexer lexer = Lexer();
     Parser parser = Parser();
+    VM vm = VM();
+    Logger &logger = Logger::get_instance();
+    logger.set_level(Logger::LogType::DEBUG);
+
     // raw string as a header
     std::cout << R"(jDBge is running in interactive mode, type "exit" or "quit" to exit the program)" << std::endl;
     while (true) {
@@ -68,7 +71,6 @@ void shell() {
         Query query = parser.compile_query();
 
         // if (query != EMPTY_QUERY) std::cout << query << std::endl;
-
         vm.exec_query(query);
     }
 }

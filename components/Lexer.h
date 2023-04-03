@@ -14,7 +14,7 @@
 /// It is capable of splitting strings by space and collect them into a vector of tokens.
 class Lexer {
 public:
-    explicit Lexer(std::string content) : content(std::move(content)) {};
+    explicit Lexer(std::string content = "") : content(std::move(content)) {};
 
     /// Getting the next token from the content of the lexer.
     Token next_token();
