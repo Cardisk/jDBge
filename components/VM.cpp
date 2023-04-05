@@ -3,8 +3,11 @@
 //
 
 #include "VM.h"
+
 #include <algorithm>
 #include <iostream>
+
+#include "Logger.h"
 
 VM::VM() {
     current_db = "";
@@ -47,7 +50,14 @@ std::map<std::string, Column> to_map(std::vector<Item> const &columns) {
 
 // TODO: Do filter on query result, was not implemented due to Filter not being ready
 bool VM::do_select(std::string const &table_name, std::vector<Item> const &fields, Filter const &filter) {
-    std::vector<Table> const &database = databases[current_db];
+    Logger &logger = Logger::get_instance();
+
+    if (current_db.empty()) {
+        logger.error("no database selected");
+        return false;
+    }
+
+    std::vector<Table> const &database = databases.at(current_db);
     for (Table const &table: database) {
         if (table.name == table_name) {
             flush();
@@ -73,6 +83,7 @@ bool VM::do_select(std::string const &table_name, std::vector<Item> const &field
             return true;
         }
     }
+    logger.error("'" + table_name + "' does not exists");
     return false;
 }
 
@@ -81,28 +92,37 @@ bool VM::do_select(const std::string &table_name, const std::vector<Item> &field
 }
 
 bool VM::do_insert(std::string const &table_name, const std::vector<Item> &fields) {
-    std::vector<Table> &database = databases[current_db];
+    Logger &logger = Logger::get_instance();
+    std::vector<Table> &database = databases.at(current_db);
     for (Table &table: database) {
         if (table.name == table_name) {
             Row new_row;
             for (Item const &field: fields) {
+                if (table.schema.find(field.column) == table.schema.end()) {
+                    logger.error("'" + field.column + "' does not exist inside '" + table_name + "' table");
+                    return false;
+                }
+
                 new_row.values.insert(new_row.values.begin() + table.schema.at(field.column).index, field.value);
             }
             table.rows.push_back(new_row);
             return true;
         }
     }
+    logger.error("'" + table_name + "' does not exists");
     return false;
 }
 
 bool VM::do_remove(std::string const &table_name, Filter filter) {
-    std::vector<Table> &database = databases[current_db];
+    Logger &logger = Logger::get_instance();
+    std::vector<Table> &database = databases.at(current_db);
     for (auto it = database.begin(); it != database.end(); it++) {
         if ((*it).name == table_name) {
             database.erase(it);
             return true;
         }
     }
+    logger.error("'" + table_name + "' does not exists");
     return false;
 }
 
@@ -122,7 +142,7 @@ bool VM::do_db(const std::string &db_name) {
 }
 
 void VM::do_table(const std::string &table_name, const std::vector<Item> &schema) {
-    std::vector<Table> &database = databases[current_db];
+    std::vector<Table> &database = databases.at(current_db);
     for (const Table &table: database) {
         if (table.name == table_name) {
             return;
