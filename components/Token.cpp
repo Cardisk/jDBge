@@ -6,7 +6,7 @@
 
 std::string token_to_str(TokenType type) {
     // compile time assert to prevent implementation of new types without updating here
-    static_assert(TokenType::TYPE_COUNT == 12);
+    static_assert(TokenType::TYPE_COUNT == 14);
 
     switch (type) {
         case TokenType::E_O_F:
@@ -35,6 +35,10 @@ std::string token_to_str(TokenType type) {
             return "LessEqual";
         case TokenType::TYPE_COUNT:
             return "TYPE_COUNT";
+        case TokenType::Bra:
+            return "Right bracket";
+        case TokenType::Ket:
+            return "Left bracket";
         default:
             return "unknown token type";
     }

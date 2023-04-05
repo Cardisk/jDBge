@@ -27,6 +27,9 @@ typedef enum TokenType {
     Less,
     LessEqual,
 
+    Bra,
+    Ket,
+
     TYPE_COUNT,
 } TokenType;
 

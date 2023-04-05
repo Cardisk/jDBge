@@ -19,6 +19,7 @@ std::vector<std::string> keywords{
         "delete",
         "and",
         "or",
+        "join",
 };
 
 #endif //JDBGE_KEYWORDS_H

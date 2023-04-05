@@ -64,7 +64,7 @@ void shell() {
         lexer.set_content(cmd);
         std::vector<Token> tokens = lexer.collect();
 
-        // vector_print(tokens);
+        vector_print(tokens);
 
         // parsing with the parser
         parser.set_tokens(tokens);

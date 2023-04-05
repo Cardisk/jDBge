@@ -77,7 +77,7 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
         else if (opcode == "insert") i.value = v[1];
     } else if (opcode == "table" || opcode == "insert") {
         // if the execution reaches this point, it's an invalid token
-        logger.error("invalid token" + token.get_text());
+        logger.error("invalid token '" + token.get_text() + "'");
         return false;
     }
 
