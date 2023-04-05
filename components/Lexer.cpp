@@ -28,19 +28,17 @@ Token Lexer::next_token() {
 
     // tokenizing brackets
     if (token_text.starts_with('(') || token_text.starts_with(')')) {
-        bool bra = token_text.starts_with('(');
+        std::string bracket(1, token_text[0]);
         token_text.erase(0, 1);
         this->content.insert(0, token_text);
 
-        if (bra)
-            return {TokenType::Bra, "("};
-        else
-            return {TokenType::Ket, ")"};
+        return {TokenType::Bracket, bracket};
     }
 
-    if (token_text.ends_with(')')) {
+    if (token_text.ends_with('(') || token_text.ends_with(')')) {
+        std::string bracket(1, token_text.back());
         token_text.erase(token_text.size() - 1, 1);
-        this->content.insert(0, ")");
+        this->content.insert(0, bracket);
     }
 
     // this will check only if the token can be a possible meta_cmd
