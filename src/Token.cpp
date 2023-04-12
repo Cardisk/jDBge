@@ -2,7 +2,7 @@
 // Created by Matteo Cardinaletti on 06/03/23.
 //
 
-#include "Token.h"
+#include "../include/Token.h"
 
 std::string token_to_str(TokenType type) {
     // compile time assert to prevent implementation of new types without updating here
