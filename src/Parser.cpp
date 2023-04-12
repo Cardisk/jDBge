@@ -2,8 +2,8 @@
 // Created by Matteo Cardinaletti on 13/03/23.
 //
 
-#include "Parser.h"
-#include "Logger.h"
+#include "../include/Parser.h"
+#include "../include/Logger.h"
 
 #include <iostream>
 #include <algorithm>

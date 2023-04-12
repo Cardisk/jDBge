@@ -2,12 +2,12 @@
 // Created by leonardo on 20/03/23.
 //
 
-#include "VM.h"
+#include "../include/VM.h"
 
 #include <algorithm>
 #include <iostream>
 
-#include "Logger.h"
+#include "../include/Logger.h"
 
 VM::VM() {
     current_db = "";
