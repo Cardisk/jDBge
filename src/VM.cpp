@@ -43,7 +43,7 @@ std::map<std::string, Column> to_map(std::vector<Item> const &columns) {
     int index = 0;
     std::map<std::string, Column> schema;
     for (const Item &item: columns) {
-        schema.insert({item.column, Column{index++, item.type}});
+        schema.insert(schema.end(), {item.column, Column{index++, item.type}});
     }
     return schema;
 }
