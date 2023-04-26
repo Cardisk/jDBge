@@ -2,10 +2,10 @@
 // Created by Matteo Cardinaletti on 04/03/23.
 //
 
-#include "Lexer.h"
+#include "../include/Lexer.h"
 
 #include <utility>
-#include "Keywords.h"
+#include "../include/Keywords.h"
 
 Token Lexer::next_token() {
     // trimming the content

@@ -2,12 +2,12 @@
 // Created by leonardo on 20/03/23.
 //
 
-#include "VM.h"
+#include "../include/VM.h"
 
 #include <algorithm>
 #include <iostream>
 
-#include "Logger.h"
+#include "../include/Logger.h"
 
 VM::VM() {
     current_db = "";
@@ -43,7 +43,7 @@ std::map<std::string, Column> to_map(std::vector<Item> const &columns) {
     int index = 0;
     std::map<std::string, Column> schema;
     for (const Item &item: columns) {
-        schema.insert({item.column, Column{index++, item.type}});
+        schema.insert(schema.end(), {item.column, Column{index++, item.type}});
     }
     return schema;
 }

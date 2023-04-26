@@ -3,11 +3,11 @@
 #include <cassert>
 #include <algorithm>
 
-#include "components/Console.h"
-#include "components/Lexer.h"
-#include "components/Parser.h"
-#include "components/VM.h"
-#include "components/Logger.h"
+#include "Console.h"
+#include "Lexer.h"
+#include "Parser.h"
+#include "VM.h"
+#include "Logger.h"
 
 #define vector_print(_VECTOR) \
     do { \
