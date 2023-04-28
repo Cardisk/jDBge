@@ -185,10 +185,6 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
 bool Parser::query(std::vector<Query> &queries) {
     Logger &logger = Logger::get_instance();
 
-    std::cout << "tokens: ";
-    vector_print(tokens);
-    std::cout << std::endl;
-
     // opcode for the query command
     std::string opcode = vector_pop(this->tokens).get_text();
 
@@ -228,9 +224,6 @@ bool Parser::query(std::vector<Query> &queries) {
     while (temp.get_type() == TokenType::Keyword) {
         if (temp.get_text() == "join") {
             temp = vector_pop(this->tokens);
-            std::cout << temp << std::endl;
-            vector_print(tokens);
-            std::cout << std::endl;
             if (temp.get_type() != TokenType::Bracket) {
                 logger.error("Invalid token '" + temp.get_text() + "'");
                 return false;
@@ -244,8 +237,6 @@ bool Parser::query(std::vector<Query> &queries) {
                     break;
                 }
             }
-            std::cout << bracket << std::endl;
-            vector_print(tokens);
 
             if (!bracket) {
                 logger.error("unclosed bracket");
@@ -276,7 +267,6 @@ std::vector<Query> Parser::parse_tokens() {
 
     std::vector<Query> queries;
 
-    vector_print(tokens);
     // validating
     if (!this->validate_query()) {
         logger.error("invalid query provided");
