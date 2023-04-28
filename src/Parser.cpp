@@ -222,3 +222,147 @@ Query Parser::compile_query() {
 
     return Query(opcode, target, columns, filter, std::stoi(limit));
 }
+
+bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
+    Logger &logger = Logger::get_instance();
+    Token temp = vector_pop(tokens);
+    if (temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
+        // if there is nothing after it, it is an invalid query
+        if (!tokens.empty()) {
+            logger.error("Found 'filter' token but there is no expression after it");
+            return false;
+        }
+
+        // while there are expressions, try to parse them
+        while (tokens.empty() && tokens.back().get_type() != TokenType::E_O_F) {
+            Expression expr = parse_expr(tokens);
+            if (expr == EMPTY_EXPR) {
+                logger.error("Found 'filter' token but there is no expression after it");
+                return false;
+            }
+            filter.push_op(expr);
+
+            // if there is a boolean operand parse it
+            if ((temp = vector_pop(tokens)).get_type() == TokenType::Keyword) {
+                if (temp.get_text() == "and") filter.push_port(Boolean::And);
+                else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
+                else {
+                    logger.error("Invalid boolean operand provided inside 'filter'");
+                    return false;
+                }
+
+                // if after the boolean there is an EOF, it is an invalid query
+                if (!tokens.empty()) {
+                    logger.error("Found boolean operand but any expression is provided after it");
+                    return false;
+                }
+            } else if (temp.get_type() != TokenType::E_O_F) {
+                logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "misc-no-recursion"
+bool Parser::query(std::vector<Query> &queries) {
+    Logger &logger = Logger::get_instance();
+    // validating
+    if (!this->validate_query()) {
+        logger.error("invalid query provided");
+        return false;
+    }
+
+    // reverse the tokens to treat them as a stack
+    std::reverse(this->tokens.begin(), this->tokens.end());
+    // opcode for the query command
+    std::string opcode = vector_pop(this->tokens).get_text();
+
+    Token temp = vector_pop(this->tokens);
+    std::string limit = "-1";
+    std::string target;
+
+    if (temp.get_type() == TokenType::Number)
+        limit = temp.get_text();
+    else if (temp.get_type() == TokenType::Symbol)
+        target = temp.get_text();
+    else {
+        // if the execution reaches this point, is an invalid query
+        logger.error("invalid token '" + temp.get_text() + "'");
+        return false;
+    }
+
+    if (target.empty() && has_tokens && tokens_peek.get_type() == TokenType::Symbol)
+        target = vector_pop(this->tokens).get_text();
+
+    std::vector<Item> columns;
+    temp = vector_pop(this->tokens);
+    while (temp.get_type() == TokenType::Symbol) {
+        if (!push_arg(columns, temp, opcode)) return {};
+
+        if (!has_tokens) break;
+        temp = vector_pop(this->tokens);
+    }
+
+    // metal detector for ugly queries
+    if (opcode == "table" && columns.empty()) {
+        logger.error("invalid 'table' query");
+        return false;
+    }
+
+    Filter filter;
+    while (temp.get_type() == TokenType::Keyword) {
+        if (temp.get_text() == "join") {
+            temp = vector_pop(this->tokens);
+            if (temp.get_type() != TokenType::Bracket) {
+                logger.error("Invalid token '" + temp.get_text() + "'");
+                return false;
+            }
+
+            bool bracket = false;
+            for (auto i = this->tokens.end(); i > this->tokens.begin(); --i) {
+                if ((*i).get_type() == TokenType::Bracket) {
+                    this->tokens.erase(i);
+                    bracket = true;
+                    break;
+                }
+            }
+
+            if (!bracket) {
+                logger.error("unclosed bracket");
+                return false;
+            }
+
+            if (!this->query(queries)) return false;
+
+        } else if (temp.get_text() == "filter") {
+            // a prescindere consumerà tutti i token rimanenti
+            if (!parse_filter(this->tokens, filter)) return false;
+        } else {
+            // if the execution reaches this point, is an invalid query
+            logger.error("invalid token '" + temp.get_text() + "'");
+            return {};
+        }
+
+        if (!has_tokens) break;
+        temp = vector_pop(this->tokens);
+    }
+
+    // TODO: add to queries the inner query;
+    queries.emplace_back(opcode, target, columns, filter, std::stoi(limit));
+    return true;
+}
+#pragma clang diagnostic pop
+
+std::vector<Query> Parser::parse_tokens() {
+    std::vector<Query> queries;
+    if (!this->query(queries)) {
+        Logger &logger = Logger::get_instance();
+        logger.error("invalid query provided");
+        return {};
+    }
+    return queries;
+}

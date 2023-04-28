@@ -63,15 +63,16 @@ void shell() {
         // tokenizing with the lexer
         lexer.set_content(cmd);
         std::vector<Token> tokens = lexer.collect();
-
         vector_print(tokens);
 
         // parsing with the parser
         parser.set_tokens(tokens);
-        Query query = parser.compile_query();
+        //Query query = parser.compile_query();
+        std::vector<Query> queries = parser.parse_tokens();
+        vector_print(queries);
 
         // if (query != EMPTY_QUERY) std::cout << query << std::endl;
-        vm.exec_query(query);
+        //vm.exec_query(query);
     }
 }
 

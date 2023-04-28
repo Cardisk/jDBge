@@ -23,12 +23,16 @@ public:
     /// Compiling a query.
     Query compile_query();
 
+    std::vector<Query> parse_tokens();
+
     /// Setting new tokens to the parser.
     void set_tokens(std::vector<Token> new_tokens) {
         this->tokens = std::move(new_tokens);
     }
 
 private:
+    bool query(std::vector<Query> &queries);
+
     std::vector<Token> tokens;
 };
 
