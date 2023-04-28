@@ -129,100 +129,6 @@ Expression parse_expr(std::vector<Token> &t) {
 #define has_tokens !this->tokens.empty()
 #define tokens_peek this->tokens.back()
 
-Query Parser::compile_query() {
-    Logger &logger = Logger::get_instance();
-    // validating
-    if (!this->validate_query()) {
-        logger.error("invalid query provided");
-        return EMPTY_QUERY;
-    }
-
-    // reverse the tokens to treat them as a stack
-    std::reverse(this->tokens.begin(), this->tokens.end());
-    // opcode for the query command
-    std::string opcode = vector_pop(this->tokens).get_text();
-
-    Token temp = vector_pop(this->tokens);
-    // number of rows that needs to be retrieved (default -1 means all)
-    std::string limit = "-1";
-    // target of the command
-    std::string target;
-    if (temp.get_type() == TokenType::Number && opcode == "select")
-        limit = temp.get_text();
-    else if (temp.get_type() == TokenType::Symbol)
-        target = temp.get_text();
-    else {
-        // if the execution reaches this point, is an invalid query
-        logger.error("invalid token '" + temp.get_text() + "'");
-        return EMPTY_QUERY;
-    }
-
-    // if the target is still empty store it
-    if (target.empty() && has_tokens &&
-        tokens_peek.get_type() == TokenType::Symbol)
-        target = vector_pop(this->tokens).get_text();
-
-    // store the arguments of the query (if no one is provided it means that the user needs all of them)
-    std::vector<Item> columns;
-    if (tokens_peek.get_type() != TokenType::Keyword && tokens_peek.get_type() != TokenType::E_O_F) {
-        temp = vector_pop(this->tokens);
-        while (temp.get_type() == TokenType::Symbol) {
-            bool result = push_arg(columns, temp, opcode);
-            if (!result) return EMPTY_QUERY;
-            if (tokens_peek.get_type() == TokenType::Symbol) temp = vector_pop(this->tokens);
-            else break;
-        }
-    }
-
-    // metal detector for ugly queries
-    if (opcode == "table" && columns.empty()) {
-        logger.error("invalid 'table' query");
-        return EMPTY_QUERY;
-    }
-
-    // query filter
-    Filter filter;
-    temp = vector_pop(this->tokens);
-    if (temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
-        // if there is nothing after it, it is an invalid query
-        if (!has_tokens) {
-            logger.error("Found 'filter' token but there is no expression after it");
-            return EMPTY_QUERY;
-        }
-
-        // while there are expressions, try to parse them
-        while (has_tokens && tokens_peek.get_type() != TokenType::E_O_F) {
-            Expression expr = parse_expr(this->tokens);
-            if (expr == EMPTY_EXPR) {
-                logger.error("Found 'filter' token but there is no expression after it");
-                return EMPTY_QUERY;
-            }
-            filter.push_op(expr);
-
-            // if there is a boolean operand parse it
-            if ((temp = vector_pop(this->tokens)).get_type() == TokenType::Keyword) {
-                if (temp.get_text() == "and") filter.push_port(Boolean::And);
-                else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
-                else {
-                    logger.error("Invalid boolean operand provided inside 'filter'");
-                    return EMPTY_QUERY;
-                }
-
-                // if after the boolean there is an EOF, it is an invalid query
-                if (!has_tokens) {
-                    logger.error("Found boolean operand but any expression is provided after it");
-                    return EMPTY_QUERY;
-                }
-            } else if (temp.get_type() != TokenType::E_O_F) {
-                logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
-                return EMPTY_QUERY;
-            }
-        }
-    }
-
-    return Query(opcode, target, columns, filter, std::stoi(limit));
-}
-
 bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
     Logger &logger = Logger::get_instance();
     Token temp = vector_pop(tokens);
@@ -266,18 +172,23 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
     return true;
 }
 
+#define vector_print(_VECTOR) \
+    do { \
+        std::cout << "[ "; \
+        for (size_t i = 0; i < (_VECTOR).size(); i++) \
+            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
+        std::cout << " ]" << std::endl; \
+    } while(0)
+
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
 bool Parser::query(std::vector<Query> &queries) {
     Logger &logger = Logger::get_instance();
-    // validating
-    if (!this->validate_query()) {
-        logger.error("invalid query provided");
-        return false;
-    }
 
-    // reverse the tokens to treat them as a stack
-    std::reverse(this->tokens.begin(), this->tokens.end());
+    std::cout << "tokens: ";
+    vector_print(tokens);
+    std::cout << std::endl;
+
     // opcode for the query command
     std::string opcode = vector_pop(this->tokens).get_text();
 
@@ -317,19 +228,24 @@ bool Parser::query(std::vector<Query> &queries) {
     while (temp.get_type() == TokenType::Keyword) {
         if (temp.get_text() == "join") {
             temp = vector_pop(this->tokens);
+            std::cout << temp << std::endl;
+            vector_print(tokens);
+            std::cout << std::endl;
             if (temp.get_type() != TokenType::Bracket) {
                 logger.error("Invalid token '" + temp.get_text() + "'");
                 return false;
             }
 
             bool bracket = false;
-            for (auto i = this->tokens.end(); i > this->tokens.begin(); --i) {
+            for (auto i = this->tokens.begin(); i < this->tokens.end(); ++i) {
                 if ((*i).get_type() == TokenType::Bracket) {
                     this->tokens.erase(i);
                     bracket = true;
                     break;
                 }
             }
+            std::cout << bracket << std::endl;
+            vector_print(tokens);
 
             if (!bracket) {
                 logger.error("unclosed bracket");
@@ -339,7 +255,6 @@ bool Parser::query(std::vector<Query> &queries) {
             if (!this->query(queries)) return false;
 
         } else if (temp.get_text() == "filter") {
-            // a prescindere consumerà tutti i token rimanenti
             if (!parse_filter(this->tokens, filter)) return false;
         } else {
             // if the execution reaches this point, is an invalid query
@@ -351,16 +266,26 @@ bool Parser::query(std::vector<Query> &queries) {
         temp = vector_pop(this->tokens);
     }
 
-    // TODO: add to queries the inner query;
     queries.emplace_back(opcode, target, columns, filter, std::stoi(limit));
     return true;
 }
 #pragma clang diagnostic pop
 
 std::vector<Query> Parser::parse_tokens() {
+    Logger &logger = Logger::get_instance();
+
     std::vector<Query> queries;
+
+    vector_print(tokens);
+    // validating
+    if (!this->validate_query()) {
+        logger.error("invalid query provided");
+        return {};
+    }
+    // reverse the tokens to treat them as a stack
+    std::reverse(this->tokens.begin(), this->tokens.end());
+
     if (!this->query(queries)) {
-        Logger &logger = Logger::get_instance();
         logger.error("invalid query provided");
         return {};
     }
