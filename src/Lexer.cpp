@@ -53,7 +53,7 @@ Token Lexer::next_token() {
     // checking if the token is a number
     if (isdigit(token_text[0])) {
         if (std::all_of(token_text.begin(), token_text.end(),
-                        [](const char &c) { return isalpha(c); }))
+                        [](const char &c) { return isdigit(c); }))
             return {TokenType::Number, token_text};
     }
 
