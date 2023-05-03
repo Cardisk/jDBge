@@ -59,6 +59,8 @@ public:
     /// Pushes a Boolean inside the filter
     void push_port(Boolean port);
 
+    bool empty();
+
     /// Getter
     std::vector<Expression> get_ops() {
         return ops;

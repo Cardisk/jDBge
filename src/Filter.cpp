@@ -24,3 +24,7 @@ void Filter::push_op(const Expression &expr) {
 void Filter::push_port(Boolean port) {
     this->ports.push_back(port);
 }
+
+bool Filter::empty() {
+    return (this->ops.empty() && this->ports.empty());
+}

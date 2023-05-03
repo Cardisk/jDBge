@@ -85,6 +85,14 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
     return true;
 }
 
+#define vector_print(_VECTOR) \
+    do { \
+        std::cout << "[ "; \
+        for (size_t i = 0; i < (_VECTOR).size(); i++) \
+            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
+        std::cout << " ]" << std::endl; \
+    } while(0)
+
 /// Private function to organize the code.
 /// Recognize an expression after the filter keyword
 /// \param t Tokens
@@ -93,6 +101,7 @@ Expression parse_expr(std::vector<Token> &t) {
     Logger &logger = Logger::get_instance();
     std::vector<Token> expr(3);
     // pop three tokens out of the vector
+    expr.clear();
     for (int i = 0; i < 3; ++i) {
         expr.push_back(vector_pop(t));
     }
@@ -131,54 +140,43 @@ Expression parse_expr(std::vector<Token> &t) {
 
 bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
     Logger &logger = Logger::get_instance();
-    Token temp = vector_pop(tokens);
-    if (temp.get_type() == TokenType::Keyword && temp.get_text() == "filter") {
-        // if there is nothing after it, it is an invalid query
-        if (!tokens.empty()) {
+    Token temp;
+
+    while (!tokens.empty() && tokens.back().get_type() != TokenType::E_O_F) {
+        Expression expr = parse_expr(tokens);
+        if (expr == EMPTY_EXPR) {
             logger.error("Found 'filter' token but there is no expression after it");
             return false;
         }
+        filter.push_op(expr);
 
-        // while there are expressions, try to parse them
-        while (tokens.empty() && tokens.back().get_type() != TokenType::E_O_F) {
-            Expression expr = parse_expr(tokens);
-            if (expr == EMPTY_EXPR) {
-                logger.error("Found 'filter' token but there is no expression after it");
+        // if there is a boolean operand parse it
+        if ((temp = vector_pop(tokens)).get_type() == TokenType::Keyword) {
+            if (temp.get_text() == "and") filter.push_port(Boolean::And);
+            else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
+            else {
+                logger.error("Invalid boolean operand provided inside 'filter'");
                 return false;
             }
-            filter.push_op(expr);
 
-            // if there is a boolean operand parse it
-            if ((temp = vector_pop(tokens)).get_type() == TokenType::Keyword) {
-                if (temp.get_text() == "and") filter.push_port(Boolean::And);
-                else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
-                else {
-                    logger.error("Invalid boolean operand provided inside 'filter'");
-                    return false;
-                }
-
-                // if after the boolean there is an EOF, it is an invalid query
-                if (!tokens.empty()) {
-                    logger.error("Found boolean operand but any expression is provided after it");
-                    return false;
-                }
-            } else if (temp.get_type() != TokenType::E_O_F) {
-                logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
+            // if after the boolean there is an EOF, it is an invalid query
+            if (!tokens.empty()) {
+                logger.error("Found boolean operand but any expression is provided after it");
                 return false;
             }
+        } else if (temp.get_type() != TokenType::E_O_F) {
+            logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
+            return false;
         }
+    }
+
+    if (filter.empty()) {
+        logger.error("Found 'filter' token but there is no expression after it");
+        return false;
     }
 
     return true;
 }
-
-#define vector_print(_VECTOR) \
-    do { \
-        std::cout << "[ "; \
-        for (size_t i = 0; i < (_VECTOR).size(); i++) \
-            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
-        std::cout << " ]" << std::endl; \
-    } while(0)
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
@@ -229,6 +227,8 @@ bool Parser::query(std::vector<Query> &queries) {
                 return false;
             }
 
+            // FIXME: con più join leva le parentesi male, parti dal fondo e cerca il primo token "join"
+            //      con un token "bracket" che lo precede e togli quello
             bool bracket = false;
             for (auto i = this->tokens.begin(); i < this->tokens.end(); ++i) {
                 if ((*i).get_type() == TokenType::Bracket) {
@@ -267,6 +267,7 @@ std::vector<Query> Parser::parse_tokens() {
 
     std::vector<Query> queries;
 
+    // FIXME: il lexer tokenizza male le join annidate
     // validating
     if (!this->validate_query()) {
         logger.error("invalid query provided");
