@@ -185,8 +185,6 @@ bool Parser::query(std::vector<Query> &queries, std::vector<Token> &working_toke
 
     // opcode for the query command
     std::string opcode = vector_pop(working_tokens).get_text();
-    std::cout << opcode << std::endl;
-    vector_print(working_tokens);
 
     Token temp = vector_pop(working_tokens);
     std::string limit = "-1";
@@ -231,36 +229,35 @@ bool Parser::query(std::vector<Query> &queries, std::vector<Token> &working_toke
                 return false;
             }
 
-            // FIXME: con più join leva le parentesi male, parti dal fondo e cerca il primo token "join"
-            //      con un token "bracket" che lo precede e togli quello
-            bool bracket = false;
+            auto remove_pos = working_tokens.end();
 
-            std::cout << "working: " << std::endl;
-            vector_print(working_tokens);
-            std::cout << std::endl;
-
-            for (auto i = working_tokens.begin(); i < working_tokens.end(); ++i) {
-                if ((*i).get_type() == TokenType::Bracket) {
-                    working_tokens.erase(i);
-                    bracket = true;
-                    std::copy(i, working_tokens.end(), std::back_inserter(copy_tokens));
-                    working_tokens.erase(i, working_tokens.end());
-                    break;
+            for (auto i = working_tokens.begin(); i != working_tokens.end(); ++i) {
+                if (i->get_text() != "join") continue;
+                if ((i + 1)->get_type() == TokenType::Bracket) {
+                    remove_pos = (i + 1);
                 }
             }
 
-            std::cout << "working modified: " << std::endl;
-            vector_print(working_tokens);
-            std::cout << std::endl;
+            if (remove_pos == working_tokens.end()) {
+                for (auto i = working_tokens.begin(); i != working_tokens.end(); ++i) {
+                    if (i->get_text() != "filter") continue;
+                    if ((i + 1)->get_type() == TokenType::Bracket) {
+                        remove_pos = (i + 1);
+                    }
+                }
+            }
 
-            std::cout << "copy: " << std::endl;
-            vector_print(copy_tokens);
-            std::cout << std::endl;
-
-            if (!bracket) {
+            if (remove_pos == working_tokens.end() && (working_tokens.begin())->get_type() == TokenType::Bracket) {
+                remove_pos = working_tokens.begin();
+            } else if (remove_pos == working_tokens.end()) {
+                vector_print(working_tokens);
                 logger.error("unclosed bracket");
                 return false;
             }
+
+            working_tokens.erase(remove_pos);
+            std::copy(remove_pos, working_tokens.end(), std::back_inserter(copy_tokens));
+            working_tokens.erase(remove_pos, working_tokens.end());
 
             bool result = this->query(queries, copy_tokens);
             if (!result) return false;
