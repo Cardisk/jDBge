@@ -250,7 +250,6 @@ bool Parser::query(std::vector<Query> &queries, std::vector<Token> &working_toke
             if (remove_pos == working_tokens.end() && (working_tokens.begin())->get_type() == TokenType::Bracket) {
                 remove_pos = working_tokens.begin();
             } else if (remove_pos == working_tokens.end()) {
-                vector_print(working_tokens);
                 logger.error("unclosed bracket");
                 return false;
             }
@@ -284,7 +283,6 @@ std::vector<Query> Parser::parse_tokens() {
 
     std::vector<Query> queries;
 
-    // FIXME: il lexer tokenizza male le join annidate
     // validating
     if (!this->validate_query()) {
         logger.error("invalid query provided");

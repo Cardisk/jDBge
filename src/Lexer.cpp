@@ -35,7 +35,7 @@ Token Lexer::next_token() {
         return {TokenType::Bracket, bracket};
     }
 
-    if (token_text.ends_with('(') || token_text.ends_with(')')) {
+    while (token_text.ends_with('(') || token_text.ends_with(')')) {
         std::string bracket(1, token_text.back());
         token_text.erase(token_text.size() - 1, 1);
         this->content.insert(0, bracket);
