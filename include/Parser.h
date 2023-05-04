@@ -20,9 +20,6 @@ public:
     /// Validating a query.
     bool validate_query();
 
-    /// Compiling a query.
-    Query compile_query();
-
     std::vector<Query> parse_tokens();
 
     /// Setting new tokens to the parser.
@@ -31,7 +28,7 @@ public:
     }
 
 private:
-    bool query(std::vector<Query> &queries);
+    bool query(std::vector<Query> &queries, std::vector<Token> &working_tokens);
 
     std::vector<Token> tokens;
 };

@@ -180,13 +180,15 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
-bool Parser::query(std::vector<Query> &queries) {
+bool Parser::query(std::vector<Query> &queries, std::vector<Token> &working_tokens) {
     Logger &logger = Logger::get_instance();
 
     // opcode for the query command
-    std::string opcode = vector_pop(this->tokens).get_text();
+    std::string opcode = vector_pop(working_tokens).get_text();
+    std::cout << opcode << std::endl;
+    vector_print(working_tokens);
 
-    Token temp = vector_pop(this->tokens);
+    Token temp = vector_pop(working_tokens);
     std::string limit = "-1";
     std::string target;
 
@@ -201,15 +203,15 @@ bool Parser::query(std::vector<Query> &queries) {
     }
 
     if (target.empty() && has_tokens && tokens_peek.get_type() == TokenType::Symbol)
-        target = vector_pop(this->tokens).get_text();
+        target = vector_pop(working_tokens).get_text();
 
     std::vector<Item> columns;
-    temp = vector_pop(this->tokens);
+    temp = vector_pop(working_tokens);
     while (temp.get_type() == TokenType::Symbol) {
         if (!push_arg(columns, temp, opcode)) return {};
 
         if (!has_tokens) break;
-        temp = vector_pop(this->tokens);
+        temp = vector_pop(working_tokens);
     }
 
     // metal detector for ugly queries
@@ -221,7 +223,9 @@ bool Parser::query(std::vector<Query> &queries) {
     Filter filter;
     while (temp.get_type() == TokenType::Keyword) {
         if (temp.get_text() == "join") {
-            temp = vector_pop(this->tokens);
+            std::vector<Token> copy_tokens;
+
+            temp = vector_pop(working_tokens);
             if (temp.get_type() != TokenType::Bracket) {
                 logger.error("Invalid token '" + temp.get_text() + "'");
                 return false;
@@ -230,23 +234,39 @@ bool Parser::query(std::vector<Query> &queries) {
             // FIXME: con più join leva le parentesi male, parti dal fondo e cerca il primo token "join"
             //      con un token "bracket" che lo precede e togli quello
             bool bracket = false;
-            for (auto i = this->tokens.begin(); i < this->tokens.end(); ++i) {
+
+            std::cout << "working: " << std::endl;
+            vector_print(working_tokens);
+            std::cout << std::endl;
+
+            for (auto i = working_tokens.begin(); i < working_tokens.end(); ++i) {
                 if ((*i).get_type() == TokenType::Bracket) {
-                    this->tokens.erase(i);
+                    working_tokens.erase(i);
                     bracket = true;
+                    std::copy(i, working_tokens.end(), std::back_inserter(copy_tokens));
+                    working_tokens.erase(i, working_tokens.end());
                     break;
                 }
             }
+
+            std::cout << "working modified: " << std::endl;
+            vector_print(working_tokens);
+            std::cout << std::endl;
+
+            std::cout << "copy: " << std::endl;
+            vector_print(copy_tokens);
+            std::cout << std::endl;
 
             if (!bracket) {
                 logger.error("unclosed bracket");
                 return false;
             }
 
-            if (!this->query(queries)) return false;
+            bool result = this->query(queries, copy_tokens);
+            if (!result) return false;
 
         } else if (temp.get_text() == "filter") {
-            if (!parse_filter(this->tokens, filter)) return false;
+            if (!parse_filter(working_tokens, filter)) return false;
         } else {
             // if the execution reaches this point, is an invalid query
             logger.error("invalid token '" + temp.get_text() + "'");
@@ -254,7 +274,7 @@ bool Parser::query(std::vector<Query> &queries) {
         }
 
         if (!has_tokens) break;
-        temp = vector_pop(this->tokens);
+        temp = vector_pop(working_tokens);
     }
 
     queries.emplace_back(opcode, target, columns, filter, std::stoi(limit));
@@ -276,7 +296,7 @@ std::vector<Query> Parser::parse_tokens() {
     // reverse the tokens to treat them as a stack
     std::reverse(this->tokens.begin(), this->tokens.end());
 
-    if (!this->query(queries)) {
+    if (!this->query(queries, this->tokens)) {
         logger.error("invalid query provided");
         return {};
     }
