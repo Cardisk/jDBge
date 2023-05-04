@@ -9,14 +9,6 @@
 #include "VM.h"
 #include "Logger.h"
 
-#define vector_print(_VECTOR) \
-    do { \
-        std::cout << "[ "; \
-        for (size_t i = 0; i < (_VECTOR).size(); i++) \
-            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
-        std::cout << " ]" << std::endl; \
-    } while(0)
-
 /// Printing the usage with a custom error message.
 /// \param err Error message
 void usage(const std::string &err) {
@@ -69,7 +61,7 @@ void shell() {
         parser.set_tokens(tokens);
         //Query query = parser.compile_query();
         std::vector<Query> queries = parser.parse_tokens();
-        vector_print(queries);
+        logger.debug(queries);
 
         // if (query != EMPTY_QUERY) std::cout << query << std::endl;
         //vm.exec_query(query);

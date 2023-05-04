@@ -85,14 +85,6 @@ bool push_arg(std::vector<Item> &columns, Token &token, const std::string &opcod
     return true;
 }
 
-#define vector_print(_VECTOR) \
-    do { \
-        std::cout << "[ "; \
-        for (size_t i = 0; i < (_VECTOR).size(); i++) \
-            std::cout << (_VECTOR)[i] << (i < (_VECTOR).size() - 1 ? ", " : ""); \
-        std::cout << " ]" << std::endl; \
-    } while(0)
-
 /// Private function to organize the code.
 /// Recognize an expression after the filter keyword
 /// \param t Tokens
