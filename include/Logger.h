@@ -57,10 +57,13 @@ public:
     template <typename T> void debug(const std::vector<T> v) {
         if (level != Logger::LogType::DEBUG) return;
 
+        Console::color(Console::Colors::yellow);
+        std::cout << "[debug] ";
         std::cout << "[ ";
         for (size_t i = 0; i < v.size(); i++)
             std::cout << v[i] << (i < v.size() - 1 ? ", " : "");
         std::cout << " ]" << std::endl;
+        Console::color();
     }
 
     void set_level(const Logger::LogType l) {

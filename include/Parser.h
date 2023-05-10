@@ -28,8 +28,9 @@ public:
     }
 
 private:
-    bool query(std::vector<Query> &queries, std::vector<Token> &working_tokens);
+    bool query(std::vector<Query> &queries);
 
+    int context = 0;
     std::vector<Token> tokens;
 };
 

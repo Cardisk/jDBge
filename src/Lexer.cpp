@@ -27,12 +27,16 @@ Token Lexer::next_token() {
     }
 
     // tokenizing brackets
-    if (token_text.starts_with('(') || token_text.starts_with(')')) {
+    if (token_text.starts_with('(') || token_text.starts_with('[') || token_text.starts_with('{')
+          || token_text.starts_with(')') || token_text.starts_with(']') || token_text.starts_with('}')) {
         std::string bracket(1, token_text[0]);
         token_text.erase(0, 1);
         this->content.insert(0, token_text);
 
-        return {TokenType::Bracket, bracket};
+        if (bracket == "(" || bracket == "[" || bracket == "{")
+            return {TokenType::Bra, bracket};
+        else
+            return {TokenType::Ket, bracket};
     }
 
     while (token_text.ends_with('(') || token_text.ends_with(')')) {
