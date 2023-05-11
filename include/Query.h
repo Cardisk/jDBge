@@ -84,44 +84,48 @@ public:
         return !operator==(self, other);
     }
 
-    const std::string &getOpcode() const {
+    [[nodiscard]] const std::string &getOpcode() const {
         return opcode;
     }
 
-    void setOpcode(const std::string &opcode) {
-        Query::opcode = opcode;
+    void setOpcode(const std::string &o) {
+        Query::opcode = o;
     }
 
-    const std::string &getTarget() const {
+    [[nodiscard]] const std::string &getTarget() const {
         return target;
     }
 
-    void setTarget(const std::string &target) {
-        Query::target = target;
+    void setTarget(const std::string &t) {
+        Query::target = t;
     }
 
-    const std::vector<Item> &getColumns() const {
+    [[nodiscard]] std::vector<Item> &getColumns() {
         return columns;
     }
 
-    void setColumns(const std::vector<Item> &columns) {
-        Query::columns = columns;
+    void setColumns(const std::vector<Item> &c) {
+        Query::columns = c;
     }
 
-    const Filter &getFilter() const {
+    void addToColumns(const Item &item) {
+        Query::columns.push_back(item);
+    }
+
+    [[nodiscard]] Filter &getFilter() {
         return filter;
     }
 
-    void setFilter(const Filter &filter) {
-        Query::filter = filter;
+    void setFilter(const Filter &f) {
+        Query::filter = f;
     }
 
-    int getLimit() const {
+    [[nodiscard]] int getLimit() const {
         return limit;
     }
 
-    void setLimit(int limit) {
-        Query::limit = limit;
+    void setLimit(const std::string &l) {
+        Query::limit = std::stoi(l);
     }
 
 private:

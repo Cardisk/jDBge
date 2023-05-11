@@ -17,7 +17,7 @@ public:
 
     explicit VM();
 
-    bool exec_query(Query const &query);
+    bool exec_query(Query &query);
 
     std::vector<std::string> get_available_dbs();
 

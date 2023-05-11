@@ -95,12 +95,21 @@ Expression parse_expr(std::vector<Token> &t) {
     // pop three tokens out of the vector
     expr.clear();
     for (int i = 0; i < 3; ++i) {
-        expr.push_back(vector_pop(t));
+        Token temp = vector_pop(t);
+        if (temp.get_type() != TokenType::Ket)
+            expr.push_back(temp);
+        else {
+            logger.error("invalid expression provided inside 'filter'");
+            return EMPTY_EXPR;
+        }
     }
 
     Expression e;
     // if the first one is EOF, return en empty expression
-    if (expr[0].get_type() == TokenType::E_O_F) return EMPTY_EXPR;
+    if (expr[0].get_type() == TokenType::E_O_F) {
+        logger.error("invalid expression provided inside 'filter'");
+        return EMPTY_EXPR;
+    }
     else e.left = expr[0].get_text();
 
     // recognizing the operand
@@ -139,7 +148,7 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
     Logger &logger = Logger::get_instance();
     Token temp;
 
-    while (!tokens.empty() && temp.get_type() != TokenType::Ket) {
+    while (tokens.size() >= 3 && tokens.back().get_type() != TokenType::Ket) {
         Expression expr = parse_expr(tokens);
         if (expr == EMPTY_EXPR) {
             logger.error("Found 'filter' token but there is no expression after it");
@@ -147,8 +156,8 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
         }
         filter.push_op(expr);
 
-        // if there is a boolean operand parse it
-        if ((temp = vector_pop(tokens)).get_type() == TokenType::Keyword) {
+        if (!tokens.empty() && tokens.back().get_type() == TokenType::Keyword) {
+            temp = vector_pop(tokens);
             if (temp.get_text() == "and") filter.push_port(Boolean::And);
             else if (temp.get_text() == "or") filter.push_port(Boolean::Or);
             else {
@@ -156,24 +165,17 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
                 return false;
             }
 
-            // if after the boolean there is an EOF, it is an invalid query
-            if (!tokens.empty()) {
+            if (tokens.empty()) {
                 logger.error("Found boolean operand but any expression is provided after it");
                 return false;
             }
-        } else if (temp.get_type() != TokenType::Ket && temp.get_type() != TokenType::E_O_F) {
-            logger.error("invalid token '" + temp.get_text() + "' found where a boolean operand is expected");
-            return false;
-        }
+        } else break;
     }
 
     if (filter.empty()) {
         logger.error("Found 'filter' token but there is no expression after it");
         return false;
     }
-
-    if (temp.get_type() == TokenType::Ket)
-        tokens.push_back(temp);
 
     return true;
 }
@@ -183,88 +185,90 @@ bool parse_filter(std::vector<Token> &tokens, Filter &filter) {
 bool Parser::query(std::vector<Query> &queries) {
     Logger &logger = Logger::get_instance();
 
+    Query query;
+
     Token temp = vector_pop(this->tokens);
 
-    // opcode for the query command
-    std::string opcode;
-    if (temp.get_type() == TokenType::Keyword)
-        opcode = temp.get_text();
+    if (temp.get_type() == TokenType::Keyword
+        && temp.get_text() != "and" && temp.get_text() != "or")
+        query.setOpcode(temp.get_text());
     else {
         logger.error("invalid command '" + temp.get_text() + "'");
         return false;
     }
 
     temp = vector_pop(this->tokens);
-    std::string limit = "-1";
-    std::string target;
 
-    if (temp.get_type() == TokenType::Number)
-        limit = temp.get_text();
-    else if (temp.get_type() == TokenType::Symbol)
-        target = temp.get_text();
-    else {
-        // if the execution reaches this point, is an invalid query
-        logger.error("invalid token '" + temp.get_text() + "'");
-        return false;
+    switch (temp.get_type()) {
+        case TokenType::Number:
+            query.setLimit(temp.get_text());
+            break;
+        case TokenType::Symbol:
+            query.setTarget(temp.get_text());
+            break;
+        default:
+            logger.error("invalid token '" + temp.get_text() + "'");
+            return false;
     }
 
-    if (target.empty() && has_tokens && tokens_peek.get_type() == TokenType::Symbol)
-        target = vector_pop(this->tokens).get_text();
+    if (query.getTarget().empty() && has_tokens && tokens_peek.get_type() == TokenType::Symbol)
+        query.setTarget(vector_pop(this->tokens).get_text());
 
-    std::vector<Item> columns;
-    temp = vector_pop(this->tokens);
-    while (temp.get_type() == TokenType::Symbol) {
-        if (!push_arg(columns, temp, opcode)) return {};
+    do {
+        if (has_tokens && tokens_peek.get_type() == TokenType::Symbol)
+            temp = vector_pop(this->tokens);
+        else break;
 
-        if (!has_tokens) break;
-        temp = vector_pop(this->tokens);
-    }
+        if (!push_arg(query.getColumns(), temp, query.getOpcode())) return false;
+    } while (tokens_peek.get_type() == TokenType::Symbol);
 
-    // metal detector for ugly queries
-    if (opcode == "table" && columns.empty()) {
+    if (query.getOpcode() == "table" && query.getColumns().empty()) {
         logger.error("invalid 'table' query");
         return false;
     }
 
-    Filter filter;
+    if (has_tokens && tokens_peek.get_type() == TokenType::Ket)
+        temp = Token();
+    else temp = vector_pop(this->tokens);
 
-    if (temp.get_type() != TokenType::Ket
-            && temp.get_type() != TokenType::Keyword
-                && temp.get_type() != TokenType::E_O_F) {
-        logger.error("invalid token '" + temp.get_text() + "'");
+    if (temp.get_type() != TokenType::Keyword && temp.get_type() != TokenType::E_O_F) {
+        logger.error("invalid token, found '" + temp.get_text() + "' instead of 'filter' or 'join'");
         return false;
     }
 
-    if (temp.get_type() == TokenType::Ket)
-        this->tokens.push_back(temp);
-
-    while (temp.get_type() == TokenType::Keyword && temp.get_type() != TokenType::Ket) {
+    while (temp.get_type() == TokenType::Keyword) {
         if (temp.get_text() == "join") {
-            temp = vector_pop(this->tokens);
-            if (temp.get_type() != TokenType::Bra) {
-                logger.error("Invalid token '" + temp.get_text() + "'");
+            if (has_tokens && tokens_peek.get_type() == TokenType::Bra)
+                vector_pop(this->tokens);
+            else {
+                logger.error("invalid token, found '" + this->tokens.back().get_text() + "' instead of '('");
                 return false;
             }
 
             this->context++;
-            if (!this->query(queries)) return false;
-            temp = vector_pop(this->tokens);
-            if (temp.get_type() == TokenType::Ket)
+            this->query(queries);
+            if (has_tokens && tokens_peek.get_type() == TokenType::Ket) {
+                vector_pop(this->tokens);
                 this->context--;
+            } else {
+                logger.error("missing closed bracket");
+                return false;
+            }
         } else if (temp.get_text() == "filter") {
-            if (!parse_filter(this->tokens, filter)) return false;
+            if (!parse_filter(this->tokens, query.getFilter())) return false;
             break;
         } else {
-            // if the execution reaches this point, is an invalid query
-            logger.error("invalid token '" + temp.get_text() + "'");
-            return {};
+            logger.error("invalid token, found '" + temp.get_text() + "' instead of 'filter' or 'join'");
+            return false;
         }
 
         if (!has_tokens) break;
-        temp = vector_pop(this->tokens);
+        if (tokens_peek.get_type() != TokenType::Ket)
+            temp = vector_pop(this->tokens);
+        else break;
     }
 
-    queries.emplace_back(opcode, target, columns, filter, std::stoi(limit));
+    queries.push_back(query);
     return true;
 }
 #pragma clang diagnostic pop
@@ -272,6 +276,7 @@ bool Parser::query(std::vector<Query> &queries) {
 std::vector<Query> Parser::parse_tokens() {
     Logger &logger = Logger::get_instance();
 
+    this->context = 0;
     std::vector<Query> queries;
 
     // validating

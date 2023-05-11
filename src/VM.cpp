@@ -13,7 +13,7 @@ VM::VM() {
     current_db = "";
 }
 
-bool VM::exec_query(Query const &query) {
+bool VM::exec_query(Query &query) {
     const std::string &opcode = query.getOpcode();
 
     if (opcode == "table") {
