@@ -95,13 +95,12 @@ Expression parse_expr(std::vector<Token> &t) {
     // pop three tokens out of the vector
     expr.clear();
     for (int i = 0; i < 3; ++i) {
-        Token temp = vector_pop(t);
-        if (temp.get_type() != TokenType::Ket)
-            expr.push_back(temp);
-        else {
+        if (t.back().get_type() == TokenType::Ket) {
             logger.error("invalid expression provided inside 'filter'");
             return EMPTY_EXPR;
         }
+
+        expr.push_back(vector_pop(t));
     }
 
     Expression e;
@@ -246,7 +245,7 @@ bool Parser::query(std::vector<Query> &queries) {
             }
 
             this->context++;
-            this->query(queries);
+            if (!this->query(queries)) return false;
             if (has_tokens && tokens_peek.get_type() == TokenType::Ket) {
                 vector_pop(this->tokens);
                 this->context--;
